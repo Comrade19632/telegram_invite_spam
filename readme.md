@@ -15,4 +15,9 @@
 
 Стек технологий: Django, DRF, React, Celery, Redis, Docker, Ngnix, Gunicorn
 
-Файл будет дополняться
+# Работа с проектом
+./bin/dev - запуск проекта
+./bin/lint - включение линтеров
+./bin/manage - алиас для команды python3 manage.py, принимает все аргументы
+./bin/shell - python3 shell внутри контейнера бэка
+
