@@ -1,9 +1,28 @@
-location /static/ {
-  alias /home/app/web/staticfiles/;
-  add_header Access-Control-Allow-Origin *;
+upstream api {
+    server app:8000;
 }
 
-location /media/ {
-  alias /home/app/web/mediafiles/;
-  add_header Access-Control-Allow-Origin *;
-}
+server {
+  listen 8080;
+
+  location / {
+    root /var/www/react;
+  }
+
+  location /api/ {
+    proxy_pass http://api;
+    proxy_set_header Host $http_host;
+    add_header Access-Control-Allow-Origin *;
+  }
+
+  location /api/static/ {
+    alias /home/app/web/staticfiles/;
+    add_header Access-Control-Allow-Origin *;
+  }
+
+  location /api/media/ {
+    alias /home/app/web/mediafiles/;
+    add_header Access-Control-Allow-Origin *;
+  }
+
+} 

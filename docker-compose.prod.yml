@@ -22,6 +22,13 @@ services:
       - postgres_data:/var/lib/postgresql/data/
     env_file:
       - ./.env.prod.db
+
+  frontend:
+    build:
+      context: ./frontend
+    volumes:
+      - react_build:/frontend/build
+
   nginx-proxy:
     container_name: nginx-proxy
     build: nginx
@@ -30,6 +37,7 @@ services:
       - 443:443
       - 80:80
     volumes:
+      - react_build:/var/www/react
       - static_volume:/home/app/web/staticfiles
       - ./app/mediafiles:/home/app/web/mediafiles
       - certs:/etc/nginx/certs
@@ -78,6 +86,7 @@ services:
 
 
 volumes:
+  react_build:
   postgres_data:
   static_volume:
   certs:
