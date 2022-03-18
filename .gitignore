@@ -1,0 +1,66 @@
+*.pyc
+/app/db.sqlite3
+/app/core
+/.db
+.DS_Store
+.env
+.env.production
+*/settings/local.py
+/staticfiles/*
+static_collected
+static_collected.zip
+app/mediafiles
+__pycache__/
+/.vscode/
+.vim
+/app/contrib/parsers/generated_files
+celerybeat-schedule
+chromedriver
+
+# coverage result
+.coverage
+/coverage/
+
+# pycharm
+.idea/
+
+# data
+*.dump
+/app/ftp
+
+# npm
+node_modules/
+npm-debug.log
+
+# Webpack
+/frontend/bundles/*
+/frontend/build/*
+/frontend/webpack-stats/*.json
+
+# Sass
+.sass-cache
+*.map
+
+# General
+/lmarkt-venv/
+/venv/
+/env/
+/output/
+/cache/
+boilerplate.zip
+
+# Spritesmith
+spritesmith-generated/
+spritesmith.scss
+
+# templated email
+tmp_email/
+
+# Geo IP database
+app/GeoIP
+app/GeoIP.conf
+
+# I2PLocation
+app/IP2Location
+
+/app/media/

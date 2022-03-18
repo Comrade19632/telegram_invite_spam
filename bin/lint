@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+args="$1"
+
+echo "Running black $args"
+docker exec -i server_backend black . $(if [ "$args" == "--check" ]; then echo "--check"; fi) --verbose
+
+echo "Running isort $args"
+docker exec -i server_backend isort $(if [ "$args" == "--check" ]; then echo "-c" ; else echo "-y"; fi)

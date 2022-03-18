@@ -1,0 +1,51 @@
+version: "3.3"
+
+services:
+  db:
+    image: postgres
+    volumes:
+      - ./db/data/db:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+
+  redis:
+    image: "redis:alpine"
+
+  backend:
+    container_name: server_backend
+    build: app
+    command: watchmedo auto-restart --recursive -d . -p '*.py' -- python3 manage.py runserver 0.0.0.0:8000
+    volumes:
+      - ./app:/code
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+      - redis
+    env_file:
+      - app/.env
+
+  telegram-bot:
+    command: watchmedo auto-restart --recursive -d . -p '*.py' -- python3 manage.py telegram_bot
+    volumes:
+      - ./app:/code
+    build: app
+    depends_on:
+      - db
+      - redis
+    env_file:
+      - app/.env
+
+  celery:
+    command: watchmedo auto-restart --recursive -d . -p '*.py' -- celery -A server.celery worker --beat --loglevel=info
+    volumes:
+      - ./app:/code
+    build: app
+    depends_on:
+      - db
+      - redis
+    env_file:
+      - app/.env
+
