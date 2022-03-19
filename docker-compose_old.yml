@@ -14,7 +14,7 @@ services:
     image: "redis:alpine"
 
   backend:
-    container_name: server_backend
+    container_name: zaim_server_backend
     build: app
     command: watchmedo auto-restart --recursive -d . -p '*.py' -- python3 manage.py runserver 0.0.0.0:8000
     volumes:
@@ -39,7 +39,7 @@ services:
       - app/.env
 
   celery:
-    command: watchmedo auto-restart --recursive -d . -p '*.py' -- celery -A server.celery worker --beat --loglevel=info
+    command: watchmedo auto-restart --recursive -d . -p '*.py' -- celery -A zaim_server.celery worker --beat --loglevel=info
     volumes:
       - ./app:/code
     build: app

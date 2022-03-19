@@ -2,6 +2,7 @@ black==20.8b1
 Django==3.2.6
 djangorestframework==3.13.1
 django-cors-headers==3.10.1
+django-admin-sortable2==1.0.3
 Pillow==7.1.0
 ipython==7.30.1
 isort[requirements]==4.3.21
@@ -17,6 +18,9 @@ celery==5.1.2
 Faker==9.0.0
 python-decouple==3.5
 redis==3.5.3
+django-phonenumber-field==4.0.0
 Markdown==3.3.6
 django-filter==21.1
 gunicorn==20.1.0
+django-phonenumber-field==4.0.0
+phonenumbers==8.12.7

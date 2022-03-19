@@ -1,4 +1,4 @@
 #!/usr/bin/env bash
 args="$1"
 
-docker exec -it server_backend python3 manage.py $args
+docker exec -it zaim_server_backend python3 manage.py $args

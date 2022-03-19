@@ -2,11 +2,11 @@ version: '3.3'
 
 services:
   web:
-    container_name: server_backend
+    container_name: zaim_server_backend
     build:
       context: ./app
       dockerfile: Dockerfile.prod
-    command: gunicorn server.wsgi:application --bind 0.0.0.0:8000
+    command: gunicorn zaim_server.wsgi:application --bind 0.0.0.0:8000
     volumes:
       - static_volume:/home/app/web/staticfiles
       - ./app/mediafiles:/home/app/web/mediafiles
@@ -69,7 +69,7 @@ services:
     build:
       context: ./app
       dockerfile: Dockerfile.prod
-    command: celery -A server.celery worker --beat --loglevel=info
+    command: celery -A zaim_server.celery worker --beat --loglevel=info
     env_file:
       - ./.env.prod
     depends_on:
