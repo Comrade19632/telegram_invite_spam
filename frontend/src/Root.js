@@ -4,6 +4,7 @@ import { Provider } from "react-redux";
 import { createBrowserHistory } from "history";
 import { applyMiddleware, createStore } from "redux";
 import { routerMiddleware, ConnectedRouter } from "connected-react-router";
+import { composeWithDevTools } from 'redux-devtools-extension/developmentOnly';
 
 import rootReducer from "./Reducer";
 import { setCurrentUser, setToken } from "./components/login/LoginActions";
@@ -16,7 +17,7 @@ const Root = ({ children, initialState = {} }) => {
   const store = createStore(
     rootReducer(history),
     initialState,
-    applyMiddleware(...middleware)
+    composeWithDevTools(applyMiddleware(...middleware))
   );
 
   if (!isEmpty(localStorage.getItem("token"))) {
