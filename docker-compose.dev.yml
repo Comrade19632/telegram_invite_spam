@@ -6,8 +6,7 @@ services:
         volumes:
             - postgres_data:/var/lib/postgresql/data/
         env_file:
-            - ./.env.prod
-
+            - ./.env.dev
     nginx: 
         restart: unless-stopped
         build:
@@ -15,40 +14,30 @@ services:
             dockerfile: ./docker/nginx/Dockerfile
         ports:
             - 80:80
-            - 443:443
         volumes:
             - static_volume:/app/backend/server/staticfiles
             - media_volume:/app/backend/server/mediafiles
-            - ./docker/nginx/production:/etc/nginx/conf.d
-            - ./docker/nginx/certbot/conf:/etc/letsencrypt
-            - ./docker/nginx/certbot/www:/var/www/certbot
+            - ./docker/nginx/development:/etc/nginx/conf.d
         depends_on: 
             - backend
-    certbot:
-        image: certbot/certbot
-        restart: unless-stopped
-        volumes:
-            - ./docker/nginx/certbot/conf:/etc/letsencrypt
-            - ./docker/nginx/certbot/www:/var/www/certbot
-        entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"     
-          
     backend:
         container_name: backend_container
         restart: unless-stopped
         build:
             context: .
             dockerfile: ./docker/backend/Dockerfile
-        entrypoint: /app/docker/backend/wsgi-entrypoint.prod.sh
+        entrypoint: /app/docker/backend/wsgi-entrypoint.dev.sh
         volumes:
+            - .:/app
             - static_volume:/app/backend/server/staticfiles
             - media_volume:/app/backend/server/mediafiles
         expose:
-            - 8000        
+            - 8000      
         env_file:
-            - ./.env.prod
+            - ./.env.dev
         depends_on:
             - db
-
+        
     redis:
         image: "redis:alpine"
 
@@ -68,7 +57,7 @@ services:
         build:
             context: .
             dockerfile: ./docker/backend/Dockerfile
-        command: python3 backend/server/manage.py telegram_bot
+        command: watchmedo auto-restart --recursive -d . -p '*.py' -- python3 backend/server/manage.py telegram_bot
         env_file:
         - ./.env.dev
         depends_on:
@@ -76,6 +65,6 @@ services:
         - redis
 
 volumes:
+    postgres_data: 
     static_volume: 
-    postgres_data:
     media_volume:
