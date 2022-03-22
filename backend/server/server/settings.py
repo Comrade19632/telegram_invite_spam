@@ -51,13 +51,13 @@ INSTALLED_APPS = [
     "rest_framework_simplejwt",
     #
     "apps.telegram_bot",
-    "apps.users"
+    "apps.users",
 ]
 
 # configure DRF
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (
-        'rest_framework_simplejwt.authentication.JWTAuthentication',
+        "rest_framework_simplejwt.authentication.JWTAuthentication",
     ),
     "DEFAULT_PERMISSION_CLASSES": [
         "rest_framework.permissions.IsAuthenticated",
@@ -127,9 +127,12 @@ USE_L10N = True
 
 USE_TZ = True
 
-AUTH_USER_MODEL = 'users.User'
+AUTH_USER_MODEL = "users.User"
 
-AUTHENTICATION_BACKENDS = ["django.contrib.auth.backends.ModelBackend" ,"apps.users.backends.AuthBackend"]
+AUTHENTICATION_BACKENDS = [
+    "django.contrib.auth.backends.ModelBackend",
+    "apps.users.backends.AuthBackend",
+]
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.2/howto/static-files/
