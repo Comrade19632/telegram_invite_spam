@@ -1,0 +1,1 @@
+from .token_obtain_pair_serializer import CustomTokenObtainPairSerializer as TokenObtainPairSerializer
