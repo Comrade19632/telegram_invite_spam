@@ -50,7 +50,7 @@ def verify_telegram_authentication(request_data):
 
     for data_pair in request_data_alphabetical_order:
         key, value = data_pair[0], data_pair[1]
-        data_check_string.append(key + "=" + value)
+        data_check_string.append(str(key) + "=" + str(value))
 
     data_check_string = "\n".join(data_check_string)
 
