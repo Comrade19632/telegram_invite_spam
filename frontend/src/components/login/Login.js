@@ -2,7 +2,6 @@ import React, { Component } from "react";
 import { withRouter } from "react-router-dom";
 import { connect } from "react-redux";
 import PropTypes from "prop-types";
-import { Link } from "react-router-dom";
 import { Container, Button, Row, Col, Form } from "react-bootstrap";
 
 import { login } from "./LoginActions.js";
@@ -11,8 +10,7 @@ class Login extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      username: "",
-      password: ""
+      telegram_id: "",
     };
   }
   onChange = e => {
@@ -21,10 +19,9 @@ class Login extends Component {
 
   onLoginClick = () => {
     const userData = {
-      username: this.state.username,
-      password: this.state.password
+      id: this.state.telegram_id,
     };
-    this.props.login(userData, "/dashboard");
+    this.props.login(userData, "/");
   };
   render() {
     return (
@@ -33,24 +30,13 @@ class Login extends Component {
           <Col md="4">
             <h1>Login</h1>
             <Form>
-              <Form.Group controlId="usernameId">
-                <Form.Label>Your username</Form.Label>
+              <Form.Group controlId="telegram_idId">
+                <Form.Label>Your telegram_id</Form.Label>
                 <Form.Control
                   type="text"
-                  name="username"
-                  placeholder="Enter username"
-                  value={this.state.username}
-                  onChange={this.onChange}
-                />
-              </Form.Group>
-
-              <Form.Group controlId="passwordId">
-                <Form.Label>Your password</Form.Label>
-                <Form.Control
-                  type="password"
-                  name="password"
-                  placeholder="Enter password"
-                  value={this.state.password}
+                  name="telegram_id"
+                  placeholder="Enter telegram_id"
+                  value={this.state.telegram_id}
                   onChange={this.onChange}
                 />
               </Form.Group>
@@ -58,13 +44,6 @@ class Login extends Component {
             <Button color="primary" onClick={this.onLoginClick}>
               Login
             </Button>
-            <p className="mt-2">
-              Don't have account? <Link to="/signup">Signup</Link>
-            </p>
-            <p className="mt-2">
-              Forget password?{" "}
-              <Link to="/send_reset_password">Reset Password</Link>
-            </p>
           </Col>
         </Row>
       </Container>
