@@ -11,7 +11,7 @@ class Login extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      email: "",
+      username: "",
       password: ""
     };
   }
@@ -21,7 +21,7 @@ class Login extends Component {
 
   onLoginClick = () => {
     const userData = {
-      email: this.state.email,
+      username: this.state.username,
       password: this.state.password
     };
     this.props.login(userData, "/dashboard");
@@ -33,13 +33,13 @@ class Login extends Component {
           <Col md="4">
             <h1>Login</h1>
             <Form>
-              <Form.Group controlId="emailId">
-                <Form.Label>Your Email</Form.Label>
+              <Form.Group controlId="usernameId">
+                <Form.Label>Your username</Form.Label>
                 <Form.Control
                   type="text"
-                  name="email"
-                  placeholder="Enter email"
-                  value={this.state.email}
+                  name="username"
+                  placeholder="Enter username"
+                  value={this.state.username}
                   onChange={this.onChange}
                 />
               </Form.Group>

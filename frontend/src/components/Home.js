@@ -10,12 +10,6 @@ class Home extends Component {
         <p>
           <Link to="/login/">Login</Link>
         </p>
-        <p>
-          <Link to="/signup">Sign up</Link>
-        </p>
-        <p>
-          <Link to="/dashboard">Dashboard</Link>
-        </p>
       </Container>
     );
   }
