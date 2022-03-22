@@ -13,11 +13,9 @@ class Home extends Component {
     return (
       <Container>
         <h1>Home</h1>
-        <p>
-          <Link to="/login/">Login</Link>
-        </p>
-        <Nav.Link onClick={this.onLogout}>Logout</Nav.Link>
-        {(this.props.isAuthenticated) ? `Вы вошли под аккаунтом - ${this.props.user.telegram_id}` : null}
+         {(this.props.isAuthenticated) ?
+          <><Nav.Link onClick={this.onLogout}>Logout</Nav.Link> Вы вошли под аккаунтом - {this.props.user.telegram_id}</>
+          : <Link to="/login/">Login</Link>} 
       </Container>
     );
   }

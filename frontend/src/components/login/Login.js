@@ -3,6 +3,7 @@ import { withRouter } from "react-router-dom";
 import { connect } from "react-redux";
 import PropTypes from "prop-types";
 import { Container, Button, Row, Col, Form } from "react-bootstrap";
+import TelegramLoginButton from './components/TelegramLoginButton'
 
 import { login } from "./LoginActions.js";
 
@@ -23,9 +24,15 @@ class Login extends Component {
     };
     this.props.login(userData, "/");
   };
+
+  handleTelegramResponse = (userData) => {
+    this.props.login(userData, "/");
+  }
+
   render() {
     return (
       <Container>
+      {(process.env.NODE_ENV == "production") ? <TelegramLoginButton dataOnauth={this.handleTelegramResponse} /> :
         <Row>
           <Col md="4">
             <h1>Login</h1>
@@ -45,7 +52,7 @@ class Login extends Component {
               Login
             </Button>
           </Col>
-        </Row>
+        </Row>}
       </Container>
     );
   }
