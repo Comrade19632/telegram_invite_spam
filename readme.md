@@ -97,3 +97,12 @@ PR доллжен называться как карточка задачи.
 docker stop $(docker ps -a -q)
 docker rm $(docker ps -a -q)
 ```
+2. ```django.db.migrations.exceptions.InconsistentMigrationHistory```
+- Останавливаем проект
+```
+docker-compose -f docker-compose.dev.yml up --build --remove-orphans db
+docker exec -it telegram_invite_spam_db_1 dropdb hello_django_dev -U hello_django
+docker exec -it telegram_invite_spam_db_1 createdb hello_django_dev -U hello_django
+```
+- Останавливаем проект
+- Запускаем весь проект через ```./bin/dev```
