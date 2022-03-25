@@ -1,0 +1,79 @@
+@use "../../../../styles/colors" as color
+.container 
+  display: flex
+  background-color: color.$primary
+  border: 1px solid white
+  box-shadow: 0 0 5px 1px black
+  margin: 40px 35%
+  color: white
+  text-transform: uppercase
+  justify-content: center
+  align-items: center
+  height: 360px
+  flex-direction: column
+  border-radius: 10px
+
+  -webkit-animation: slide-in-elliptic-top-fwd 0.7s cubic-bezier(0.250, 0.460, 0.450, 0.940) both
+  animation: slide-in-elliptic-top-fwd 0.7s cubic-bezier(0.250, 0.460, 0.450, 0.940) both
+
+
+  h1 
+    color: color.$milky
+    font-weight: 800
+    margin: 20px auto
+
+  form 
+    display: flex
+    flex-direction: row
+    margin: 10px auto
+    justify-content: space-around
+    align-items: center
+
+    label 
+      margin-right: 20px
+
+    input 
+      border: 1px solid black
+      padding: 5px
+
+      &:focus 
+        box-shadow: inset 0 0 5px 1px black
+
+    button 
+      margin-left: 40px
+
+/**
+ * ----------------------------------------
+ * animation slide-in-elliptic-top-fwd
+ * ----------------------------------------
+ */
+
+@-webkit-keyframes slide-in-elliptic-top-fwd
+  0%
+    -webkit-transform: translateY(-600px) rotateX(-30deg) scale(0)
+            transform: translateY(-600px) rotateX(-30deg) scale(0)
+    -webkit-transform-origin: 50% 100%
+            transform-origin: 50% 100%
+    opacity: 0
+
+  100%
+    -webkit-transform: translateY(0) rotateX(0) scale(1)
+            transform: translateY(0) rotateX(0) scale(1)
+    -webkit-transform-origin: 50% 1400px
+            transform-origin: 50% 1400px
+    opacity: 1
+
+@keyframes slide-in-elliptic-top-fwd
+  0%
+    -webkit-transform: translateY(-600px) rotateX(-30deg) scale(0)
+            transform: translateY(-600px) rotateX(-30deg) scale(0)
+    -webkit-transform-origin: 50% 100%
+            transform-origin: 50% 100%
+    opacity: 0
+
+  100%
+    -webkit-transform: translateY(0) rotateX(0) scale(1)
+            transform: translateY(0) rotateX(0) scale(1)
+    -webkit-transform-origin: 50% 1400px
+            transform-origin: 50% 1400px
+    opacity: 1
