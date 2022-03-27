@@ -23,6 +23,8 @@ services:
     backend:
         container_name: backend_container
         restart: unless-stopped
+        stdin_open: true
+        tty: true
         build:
             context: .
             dockerfile: ./docker/backend/Dockerfile
