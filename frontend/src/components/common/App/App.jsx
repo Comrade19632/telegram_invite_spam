@@ -1,17 +1,17 @@
-import React from 'react';
-import { Route, Routes } from 'react-router';
-import * as axios from 'axios';
+import React from 'react'
+import { Route, Routes } from 'react-router-dom'
+import * as axios from 'axios'
 
-import Login from '../../layouts/Auth/Login/Login';
-import HomePage from '../../../containers/HomePage/HomePage';
-import { PageNotFound } from '../../../containers/PageNotFound/PageNotFound';
-import { Layout } from '../../layouts/Layout/Layout';
-import './App.module.sass';
+import Login from '../../layouts/Auth/Login/Login'
+import HomePage from '../../../containers/HomePage/HomePage'
+import { PageNotFound } from '../../../containers/PageNotFound/PageNotFound'
+import Layout from '../../layouts/Layout'
+import './App.module.sass'
 
 if (window.location.origin === 'http://localhost:3000') {
-  axios.defaults.baseURL = 'http://localhost/';
+  axios.defaults.baseURL = 'http://localhost/'
 } else {
-  axios.defaults.baseURL = window.location.origin;
+  axios.defaults.baseURL = window.location.origin
 }
 
 function App() {
@@ -25,7 +25,7 @@ function App() {
         </Route>
       </Routes>
     </div>
-  );
+  )
 }
 
-export default App;
+export default App

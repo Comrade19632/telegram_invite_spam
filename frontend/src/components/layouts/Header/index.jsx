@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import Button from "../../common/Button";
 import style from "./Header.module.sass";
 
-export const Header = () => {
+export default () => {
     const navigate = useNavigate()
     return (
         <div className={ style.container }>
