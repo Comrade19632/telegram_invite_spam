@@ -60,6 +60,8 @@ services:
             context: .
             dockerfile: ./docker/backend/Dockerfile
         command: watchmedo auto-restart --recursive -d . -p '*.py' -- python3 backend/server/manage.py telegram_bot
+        stdin_open: true
+        tty: true
         volumes:
             - .:/app
         env_file:
