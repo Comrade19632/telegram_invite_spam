@@ -1,16 +1,6 @@
 import React, { useRef, useEffect } from 'react'
 import PropTypes from 'prop-types'
 
-// some zombie code
-// {
-//     "id": 1277782669,
-//     "first_name": "Артём",
-//     "username": "comrade19632",
-//     "photo_url": "https://t.me/i/userpic/320/OH0C1pa8sqbOcXPUgYR6sj-UBcK_L30wi6P0IydDABQ.jpg",
-//     "auth_date": 1647982779,
-//     "hash": "1fe826b0de48d7389c4824d879ab75bd9449c228ee279439f24d3b18396cb40"
-// }
-
 const TelegramLoginButton = ({
   botName,
   buttonSize,
@@ -22,6 +12,16 @@ const TelegramLoginButton = ({
   dataAuthUrl,
   lang,
 }) => {
+
+//   {
+//     "id": 1277782669,
+//     "first_name": "Артём",
+//     "username": "comrade19632",
+//     "photo_url": "https://t.me/i/userpic/320/OH0C1pa8sqbOcXPUgYR6sj-UBcK_L30wi6P0IydDABQ.jpg",
+//     "auth_date": 1647982779,
+//     "hash": "1fe826b0de48d7389c4824d879ab75bd9449c228ee279439f24d3b18396cb40"
+// }
+
   const instance = useRef(null)
 
   useEffect(() => {
@@ -52,16 +52,7 @@ const TelegramLoginButton = ({
 
       instance.current.appendChild(script)
     }
-  }, [
-    botName,
-    buttonSize,
-    cornerRadius,
-    requestAccess,
-    dataOnauth,
-    dataAuthUrl,
-    lang,
-    usePic,
-  ])
+  }, [instance])
 
   return (
     <div ref={instance} className={className} />
@@ -81,14 +72,12 @@ TelegramLoginButton.propTypes = {
 }
 
 TelegramLoginButton.defaultProps = {
+  botName: 'invite_spam_bot',
   buttonSize: 'large',
   dataOnauth: () => undefined,
   lang: 'ru',
   requestAccess: 'write',
   usePic: true,
-  cornerRadius: 0,
-  dataAuthUrl: '#',
-  className: '',
 }
 
 export default TelegramLoginButton
