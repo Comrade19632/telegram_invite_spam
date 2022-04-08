@@ -70,6 +70,21 @@ services:
         - db
         - redis
 
+    telegram-manual-bot:
+        build:
+            context: .
+            dockerfile: ./docker/backend/Dockerfile
+        command: watchmedo auto-restart --recursive -d . -p '*.py' -- python3 backend/server/manage.py telegram_manual_bot
+        stdin_open: true
+        tty: true
+        volumes:
+            - .:/app
+        env_file:
+        - ./.env.dev
+        depends_on:
+        - db
+        - redis
+
 volumes:
     postgres_data: 
     static_volume: 

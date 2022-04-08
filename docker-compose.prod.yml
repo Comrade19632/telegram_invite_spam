@@ -75,6 +75,17 @@ services:
         - db
         - redis
 
+    telegram-manual-bot:
+        build:
+            context: .
+            dockerfile: ./docker/backend/Dockerfile
+        command: python3 backend/server/manage.py telegram_manual_bot
+        env_file:
+        - ./.env.prod
+        depends_on:
+        - db
+        - redis
+
 volumes:
     static_volume: 
     postgres_data:
