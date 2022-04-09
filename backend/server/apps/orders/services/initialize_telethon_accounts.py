@@ -28,3 +28,4 @@ def initialize_telethon_accounts(queryset=None):
         if client.is_user_authorized():
             account.is_initialized = True
             account.save()
+        client.disconnect()
