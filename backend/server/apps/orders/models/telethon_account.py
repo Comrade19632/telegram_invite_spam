@@ -1,5 +1,5 @@
 from django.conf import settings
-from django.db.models import CASCADE, PROTECT, CharField, ForeignKey, PositiveSmallIntegerField
+from django.db.models import PROTECT, BooleanField, CharField, ForeignKey
 
 from phonenumber_field.modelfields import PhoneNumberField
 
@@ -17,4 +17,9 @@ class TelethonAccount(TimeStampedModel, ActiveModel):
     api_hash = CharField(max_length=128, verbose_name="Telegram api hash")
     phone_number = PhoneNumberField(
         verbose_name="Номер телефона",
+    )
+    is_initialized = BooleanField(
+        verbose_name="Инициализирован?",
+        default=False,
+        db_index=True,
     )

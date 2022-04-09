@@ -130,3 +130,6 @@ dmypy.json
 .pyre/
 
 /docker/nginx/certbot
+
+*.session
+*.session-journal
