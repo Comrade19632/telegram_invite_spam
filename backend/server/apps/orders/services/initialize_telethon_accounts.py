@@ -18,7 +18,13 @@ def initialize_telethon_accounts(queryset=None):
         client.connect()
         if not client.is_user_authorized():
             client.send_code_request(phone_number)
-            client.sign_in(phone_number, input("[+] Enter the code: "))
+            try:
+                client.sign_in(
+                    phone_number, input(f"[{phone_number}] Enter the code: ")
+                )
+            except:
+                print(f"\033[93mНе удалось войти в аккаунт {phone_number}\033[0m")
+                continue
         if client.is_user_authorized():
             account.is_initialized = True
             account.save()
