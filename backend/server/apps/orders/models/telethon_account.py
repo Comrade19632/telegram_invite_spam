@@ -1,8 +1,9 @@
 from django.conf import settings
-from django.db.models import CASCADE, PROTECT, ForeignKey, PositiveSmallIntegerField, CharField
-from phonenumber_field.modelfields import PhoneNumberField
-from common.models import TimeStampedModel, ActiveModel
+from django.db.models import CASCADE, PROTECT, CharField, ForeignKey, PositiveSmallIntegerField
 
+from phonenumber_field.modelfields import PhoneNumberField
+
+from common.models import ActiveModel, TimeStampedModel
 
 
 class TelethonAccount(TimeStampedModel, ActiveModel):
