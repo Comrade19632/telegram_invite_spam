@@ -1,1 +1,1 @@
-from .telethon_constants import TELETHON_FOLDER_SESSION
+from .telethon_constants import PARS_RESULTS_FOLDER, TELETHON_SESSIONS_FOLDER

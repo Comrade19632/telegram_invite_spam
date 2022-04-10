@@ -133,3 +133,5 @@ dmypy.json
 
 *.session
 *.session-journal
+
+*.csv
