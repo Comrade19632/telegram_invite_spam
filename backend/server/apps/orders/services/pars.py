@@ -3,6 +3,7 @@ import csv
 import os
 import sys
 import time
+import traceback
 
 from telethon.sync import TelegramClient
 from telethon.tl.functions.channels import JoinChannelRequest
@@ -41,10 +42,10 @@ def pars(target_chat_link, user=None):
 
         client.disconnect()
     except:
+        traceback.print_exc()
         account.is_active = False
         account.save()
         pars(target_chat_link, user)
-
     with open(
         PARS_RESULTS_FOLDER + f"{account.api_id}{chat.id}.csv", "w+", encoding="UTF-8"
     ) as f:
