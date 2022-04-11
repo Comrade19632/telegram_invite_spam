@@ -1,7 +1,7 @@
 from telegram import Update
 from telegram.ext import CallbackContext
 
-from apps.telegram_bot.services.step_variables import SHOW_DATA, State
+from apps.telegram_bot.conversation.step_variables import SHOW_DATA, State
 
 
 def enter_spam_creative(update: Update, context: CallbackContext) -> str:

@@ -26,6 +26,11 @@ SHOWING, STOPPING, START_OVER = map(chr, range(5, 8))
     ADD_DATA,
 ) = map(chr, range(8, 17))
 
+#ввод данных ТГ аккаунта для парсинга и продвижения
+(ENTER_ID, ENTER_HASH_ID, ENTER_PHONE_NUMBER, DATA_VALIDATION, 
+CHANGE, TG_DATA, SELECTING_ACTION, CHECK_PASS, ADD_TG_ACC, START_PROMO, 
+RESULT_OF_VALIDATION, NEXT_CONV)  = map(chr, range(17, 29))
+
 # Состояние завершения диалогов
 END = ConversationHandler.END
 
@@ -34,6 +39,12 @@ TWO, FOUR, SIX, EIGHT = 2, 4, 6, 8
 
 # Определение состояния для временного хранения данных
 class State:
+    tg_data = {
+        "id": "",
+        "hash_id": "",
+        "phone_number": "",
+    }
+
     invite = {
         "group": "",
         "groups": "",

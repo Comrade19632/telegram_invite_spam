@@ -1,13 +1,13 @@
 from telegram.ext import CallbackQueryHandler, CommandHandler, ConversationHandler
 
-from apps.telegram_bot.services.menu_handlers import (
+from apps.telegram_bot.conversation.handlers.telegram_bot import (
     end,
     promotion_with_invitations,
     promotion_with_spamming,
     start,
     stop,
 )
-from apps.telegram_bot.services.step_variables import (
+from apps.telegram_bot.conversation.step_variables import (
     CONFIRM,
     END,
     PROMOTION_BY_INVITATION,
@@ -17,6 +17,7 @@ from apps.telegram_bot.services.step_variables import (
     SELECTING_MENU,
     SHOWING,
     STOPPING,
+    NEXT_CONV,
 )
 
 from .conv_handler import conv_handler
@@ -34,9 +35,12 @@ selection_handlers = [
 ]
 
 
-def get_menu_conv_handler():
+def promotion_conv_menu():
     return ConversationHandler(
-        entry_points=[CommandHandler("start", start)],
+        entry_points=[
+            CommandHandler("start", start),
+            CallbackQueryHandler(start, pattern="^" + str(NEXT_CONV) + "$")
+            ],
         states={
             STOPPING: [CallbackQueryHandler(start, pattern="^" + str(END) + "$")],
             SHOWING: [CallbackQueryHandler(start, pattern="^" + str(END) + "$")],

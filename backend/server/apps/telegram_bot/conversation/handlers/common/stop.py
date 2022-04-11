@@ -1,7 +1,7 @@
 from telegram import Update
 from telegram.ext import CallbackContext
 
-from apps.telegram_bot.services.step_variables import END
+from apps.telegram_bot.conversation.step_variables import END
 
 
 def stop(update: Update, context: CallbackContext) -> int:

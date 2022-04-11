@@ -3,7 +3,7 @@ from django.core.management.base import BaseCommand
 
 from telegram.ext import Updater
 
-from apps.telegram_bot.services.conversation_handlers import get_menu_conv_handler
+from apps.telegram_bot.conversation.conversation_handlers.telegram_manual_bot import enter_tg_data_conv_handler
 
 
 class Command(BaseCommand):
@@ -14,7 +14,7 @@ class Command(BaseCommand):
 
         # Get the dispatcher to register handlers
         dispatcher = updater.dispatcher
-        dispatcher.add_handler(get_menu_conv_handler())
+        dispatcher.add_handler(enter_tg_data_conv_handler())
 
         # Start the Bot
         updater.start_polling()

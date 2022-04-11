@@ -7,4 +7,4 @@ from .promotion_with_invitations import promotion_with_invitations
 from .promotion_with_spamming import promotion_with_spamming
 from .show_data import show_data
 from .start import start
-from .stop import stop
+from apps.telegram_bot.conversation.handlers.common import stop

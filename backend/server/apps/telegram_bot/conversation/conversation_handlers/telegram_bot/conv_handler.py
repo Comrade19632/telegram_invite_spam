@@ -1,13 +1,13 @@
 from telegram.ext import CallbackQueryHandler, ConversationHandler, Filters, MessageHandler
 
-from apps.telegram_bot.services.menu_handlers import (
+from apps.telegram_bot.conversation.handlers.telegram_bot import (
     enter_donor_groups,
     enter_spam_creative,
     enter_target_group,
     enter_user_activity,
     show_data,
 )
-from apps.telegram_bot.services.step_variables import (
+from apps.telegram_bot.conversation.step_variables import (
     ADD_DATA,
     EIGHT,
     ENTER_DONOR_GROUPS,

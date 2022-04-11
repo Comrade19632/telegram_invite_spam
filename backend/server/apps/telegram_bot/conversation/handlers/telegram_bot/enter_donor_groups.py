@@ -1,7 +1,7 @@
 from telegram import Update
 from telegram.ext import CallbackContext
 
-from apps.telegram_bot.services.step_variables import USER_ACTIVITY, State
+from apps.telegram_bot.conversation.step_variables import USER_ACTIVITY, State
 
 
 def enter_donor_groups(update: Update, context: CallbackContext) -> str:

@@ -1,7 +1,7 @@
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
 from telegram.ext import CallbackContext
 
-from apps.telegram_bot.services.step_variables import (
+from apps.telegram_bot.conversation.step_variables import (
     ADD_DATA,
     CURRENT_MENU,
     INVITE,
