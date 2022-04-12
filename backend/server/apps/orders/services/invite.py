@@ -14,6 +14,7 @@ from telethon.errors.rpcerrorlist import (
     UserKickedError,
     UserNotMutualContactError,
     UserPrivacyRestrictedError,
+    UserIdInvalidError,
 )
 from telethon.sync import TelegramClient
 from telethon.tl.functions.channels import InviteToChannelRequest, JoinChannelRequest
