@@ -11,6 +11,7 @@ from telethon.errors.rpcerrorlist import (
     ChatWriteForbiddenError,
     FloodWaitError,
     PeerFloodError,
+    UserKickedError,
     UserNotMutualContactError,
     UserPrivacyRestrictedError,
 )
@@ -29,12 +30,12 @@ gr = "\033[1;32m"
 cy = "\033[1;36m"
 
 
-def invite(target_chat_link, donor_chat_link, user_account=None):
-    input_file = pars(target_chat_link=donor_chat_link, user_account=user_account)
+def invite(order):
+    input_file = pars(target_chat_link=order.donor_chat_link, user_account=order.user)
 
-    if user_account:
+    if order.user:
         account = TelethonAccount.objects.filter(
-            is_initialized=True, is_active=True, owner=user_account
+            is_initialized=True, is_active=True, owner=order.user
         ).first()
     else:
         account = TelethonAccount.objects.filter(
@@ -48,8 +49,6 @@ def invite(target_chat_link, donor_chat_link, user_account=None):
     api_hash = account.api_hash
     phone_number = account.phone_number
 
-    print(gr + f"running with account {str(phone_number)}")
-
     client = TelegramClient(
         TELETHON_SESSIONS_FOLDER + str(phone_number), api_id, api_hash
     )
@@ -62,10 +61,10 @@ def invite(target_chat_link, donor_chat_link, user_account=None):
         traceback.print_exc()
         account.is_active = False
         account.save()
-        invite(target_chat_link, donor_chat_link, user_account)
+        invite(order)
         return
 
-    chat = client.get_entity(target_chat_link)
+    chat = client.get_entity(order.target_chat_link)
     client(JoinChannelRequest(chat))
 
     users = []
@@ -81,6 +80,11 @@ def invite(target_chat_link, donor_chat_link, user_account=None):
             users.append(user)
 
     for user in users:
+        if user["id"] in order.affected_users:
+            print(gr + "[+] This user already has been affected")
+            continue
+        order.affected_users.append(user["id"])
+        order.save()
         try:
             user_to_add = InputPeerUser(user["id"], user["access_hash"])
             client(InviteToChannelRequest(chat, [user_to_add]))
@@ -94,7 +98,7 @@ def invite(target_chat_link, donor_chat_link, user_account=None):
                 re
                 + "[!] Getting Flood Error from telegram. \n[!] Rerun function with another account"
             )
-            invite(target_chat_link, donor_chat_link, user_account)
+            invite(order)
             return
         except PeerFloodError:
             client.disconnect()
@@ -104,7 +108,7 @@ def invite(target_chat_link, donor_chat_link, user_account=None):
                 re
                 + "[!] Getting Flood Error from telegram. \n[!] Rerun function with another account"
             )
-            invite(target_chat_link, donor_chat_link, user_account)
+            invite(order)
             return
         except UserPrivacyRestrictedError:
             print(
@@ -115,12 +119,15 @@ def invite(target_chat_link, donor_chat_link, user_account=None):
         except UserNotMutualContactError:
             print(re + "[!] The provided user is not a mutual contact. Skipping")
             continue
+        except UserKickedError:
+            print(re + "[!] This user was kicked from this channel. Skipping")
+            continue
         except ChatWriteForbiddenError:
             client.disconnect()
             account.is_active = False
             account.save()
             print(re + "[!] Account can`t write in this chat")
-            invite(target_chat_link, donor_chat_link, user_account)
+            invite(order)
             return
         except:
             client.disconnect()
@@ -128,5 +135,5 @@ def invite(target_chat_link, donor_chat_link, user_account=None):
             account.save()
             traceback.print_exc()
             print(re + "[!] Unexpected Error")
-            invite(target_chat_link, donor_chat_link, user_account)
+            invite(order)
             return
