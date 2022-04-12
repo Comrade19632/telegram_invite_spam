@@ -7,21 +7,23 @@ import traceback
 
 from telethon.sync import TelegramClient
 from telethon.tl.functions.channels import JoinChannelRequest
+from telethon.tl.functions.messages import ImportChatInviteRequest
 
 from apps.orders.constants import PARS_RESULTS_FOLDER, TELETHON_SESSIONS_FOLDER
 from apps.orders.models import TelethonAccount
 
 
-def pars(target_chat_link, user=None):
-    if user:
+def pars(target_chat_link, user_account=None):
+    if user_account:
         account = TelethonAccount.objects.filter(
-            is_initialized=True, is_active=True, owner=user
+            is_initialized=True, is_active=True, owner=user_account
         ).first()
     else:
         account = TelethonAccount.objects.filter(
             is_initialized=True, is_active=True
         ).first()
     if not account:
+        print("you dont have any active accounts")
         return
     api_id = account.api_id
     api_hash = account.api_hash
@@ -33,19 +35,26 @@ def pars(target_chat_link, user=None):
 
     try:
         client.connect()
-        chat = client.get_entity(target_chat_link)
 
-        client(JoinChannelRequest(chat))
-
-        all_participants = []
-        all_participants = client.get_participants(chat, aggressive=False)
-
-        client.disconnect()
     except:
+        client.disconnect()
         traceback.print_exc()
         account.is_active = False
         account.save()
-        pars(target_chat_link, user)
+        pars(target_chat_link, user_account)
+
+    try:
+        chat = client.get_entity(target_chat_link)
+        client(JoinChannelRequest(chat))
+    except ValueError:
+        updates = client(ImportChatInviteRequest(target_chat_link))
+        chat = updates.chats[0]
+
+    all_participants = []
+    all_participants = client.get_participants(chat, aggressive=False)
+
+    client.disconnect()
+
     with open(
         PARS_RESULTS_FOLDER + f"{account.api_id}{chat.id}.csv", "w+", encoding="UTF-8"
     ) as f:
