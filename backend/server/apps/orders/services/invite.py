@@ -80,7 +80,7 @@ def invite(order):
             users.append(user)
 
     for user in users:
-        if user["id"] in order.affected_users:
+        if str(user["id"]) in order.affected_users:
             print(gr + "[+] This user already has been affected")
             continue
         order.affected_users.append(user["id"])
@@ -121,6 +121,9 @@ def invite(order):
             continue
         except UserKickedError:
             print(re + "[!] This user was kicked from this channel. Skipping")
+            continue
+        except UserIdInvalidError:
+            print(re + "[!] Invalid object ID for a user. Skipping")
             continue
         except ChatWriteForbiddenError:
             client.disconnect()
