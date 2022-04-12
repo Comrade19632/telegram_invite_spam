@@ -12,12 +12,12 @@ def verification_code(update: Update, context: CallbackContext) -> str:
     сохранения этих данных в БД,
     ввод пароля подтвеждения.
     """
-    TelethonAccount.objects.create(
+    account = TelethonAccount.objects.create(
         api_id = context.user_data[TG_DATA]['id'],
         api_hash = context.user_data[TG_DATA]['hash_id'],
         phone_number = context.user_data[TG_DATA]['phone_number'],
         )
-    initialize_telethon_accounts()
+    initialize_telethon_accounts([account])
     
 
     text = "Сейчас в Ваш Телеграм аккаунт прийдет пароль подтвеждения"

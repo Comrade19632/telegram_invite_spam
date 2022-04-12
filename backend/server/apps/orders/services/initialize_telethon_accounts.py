@@ -5,11 +5,11 @@ from apps.orders.constants import TELETHON_SESSIONS_FOLDER
 from apps.orders.models import TelethonAccount
 import time
 
-check_code = None
+CHECK_CODE = None
 def get_code(verification_code):
-    global check_code
-    check_code = verification_code
-    print(f'verification_code: {check_code}')
+    global CHECK_CODE
+    CHECK_CODE = verification_code
+    print(f'verification_code: {CHECK_CODE}')
 
 def initialize_telethon_accounts(queryset=None):
     if not queryset:
@@ -33,10 +33,10 @@ def initialize_telethon_accounts(queryset=None):
 
         if not client.is_user_authorized():
             client.send_code_request(phone_number)
-            while check_code is None:
+            while CHECK_CODE is None:
                 time.sleep(3)
             try:
-                client.sign_in(phone_number, check_code)
+                client.sign_in(phone_number, CHECK_CODE)
                 # client.sign_in(
                 #     phone_number, input(f"[{phone_number}] Enter the code: ")
                 # )

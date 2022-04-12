@@ -7,13 +7,12 @@ from apps.orders.services import get_code
 
 def code_check(update: Update, context: CallbackContext) -> str:
     """
-    Отправляем пароль в БЭК для завершения аунтификации и создания сессии,
+    Отправляем пароль в скрипт для завершения аунтификации и создания сессии,
     Предлагаем выбор действий: Начать продвижение / Добавить еще аккаунт 
     """
 
     verification_code = update.message.text
     get_code(verification_code)
- 
  
     buttons = [
         [InlineKeyboardButton(text="Начать продвижение", callback_data=str(START_PROMO))],
