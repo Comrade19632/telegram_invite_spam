@@ -11,6 +11,7 @@ from telethon.errors.rpcerrorlist import (
     ChatWriteForbiddenError,
     FloodWaitError,
     PeerFloodError,
+    UserChannelsTooMuchError,
     UserIdInvalidError,
     UserKickedError,
     UserNotMutualContactError,
@@ -83,6 +84,7 @@ def invite(order):
             users.append(user)
 
     for user in users:
+        order.refresh_from_db()
         if str(user["id"]) in order.affected_users:
             print(gr + "[+] This user already has been affected")
             continue
@@ -127,6 +129,12 @@ def invite(order):
             continue
         except UserIdInvalidError:
             print(re + "[!] Invalid object ID for a user. Skipping")
+            continue
+        except UserChannelsTooMuchError:
+            print(
+                re
+                + "[!] One of the users you tried to add is already in too many channels/supergroups"
+            )
             continue
         except ChatWriteForbiddenError:
             client.disconnect()
