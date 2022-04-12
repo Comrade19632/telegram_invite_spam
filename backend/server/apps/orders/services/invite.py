@@ -11,10 +11,10 @@ from telethon.errors.rpcerrorlist import (
     ChatWriteForbiddenError,
     FloodWaitError,
     PeerFloodError,
+    UserIdInvalidError,
     UserKickedError,
     UserNotMutualContactError,
     UserPrivacyRestrictedError,
-    UserIdInvalidError,
 )
 from telethon.sync import TelegramClient
 from telethon.tl.functions.channels import InviteToChannelRequest, JoinChannelRequest
@@ -64,6 +64,8 @@ def invite(order):
         account.save()
         invite(order)
         return
+
+    print(f"Start with {phone_number} account")
 
     chat = client.get_entity(order.target_chat_link)
     client(JoinChannelRequest(chat))
