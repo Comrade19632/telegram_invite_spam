@@ -23,7 +23,6 @@ const App = () => {
         <Route path="/" element={<Layout />}>
           <Route index element={<HomePage />} />
           <Route path="login" element={<LoginPage />} />
-          <Route path="login?:telegramID" element={<HomePage />} />
           <Route path="*" element={<PageNotFound />} />
         </Route>
       </Routes>
