@@ -1,32 +1,105 @@
-import Button from 'components/common/Button'
-import TelegramLoginButton from '../TelegramLoginButton/TelegramLoginButton/TelegramLoginButton'
-import style from './Login.module.sass'
+import * as React from 'react';
+import Avatar from '@mui/material/Avatar';
+import Button from '@mui/material/Button';
+import CssBaseline from '@mui/material/CssBaseline';
+import TextField from '@mui/material/TextField';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import Checkbox from '@mui/material/Checkbox';
+import Link from '@mui/material/Link';
+import Grid from '@mui/material/Grid';
+import Box from '@mui/material/Box'
 
-const Login = ({ telegramID, handleAuthentication, updateTelegramID, handleTelegramResponse }) => {
+import Typography from '@mui/material/Typography';
+import Container from '@mui/material/Container';
+import { createTheme, ThemeProvider } from '@mui/material/styles';
+
+const Copyright = (props) => {
   return (
-    <div>
-      {(process.env.NODE_ENV === 'production') ? <TelegramLoginButton dataOnauth={handleTelegramResponse} /> : ( 
-        <div className={style.container}>
-          <h1>Login</h1>
-          <form className={style.form}>
-            <label>Your telegram_id</label>
-            <input
-              type="text"
-              name="telegramID"
-              placeholder="Enter telegram_id"
-              value={telegramID}
-              onChange={updateTelegramID}
-            />
-            <Button 
-              type='button'
-              name='login' 
-              onClick={handleAuthentication} 
-            />
-          </form>
-        </div>
-      )}
-    </div>
-  )
+    <Typography variant="body2" color="text.secondary" align="center" {...props}>
+      {'Copyright © '}
+      <Link color="inherit" href="https://mui.com/">
+        Your Website
+      </Link>{' '}
+      {new Date().getFullYear()}
+      {'.'}
+    </Typography>
+  );
 }
 
-export default Login
+const theme = createTheme();
+
+const SignIn = ({ telegramID, handleAuthentication, updateTelegramID, handleTelegramResponse }) => {
+  const handleSubmit = (event) => {
+    event.preventDefault();
+    const data = new FormData(event.currentTarget);
+    console.log({
+      email: data.get('email'),
+      password: data.get('password'),
+    });
+  };
+
+  return (
+    <ThemeProvider theme={theme}>
+      <Container component="main" maxWidth="xs">
+        <CssBaseline />
+        <Box
+          sx={{
+            marginTop: 8,
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+          }}
+        >
+          <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
+
+          </Avatar>
+          <Typography component="h1" variant="h5">
+            Войти
+          </Typography>
+          <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
+            <TextField
+              margin="normal"
+              required
+              fullWidth
+              id="telegramID"
+              label="telegram id"
+              name="telegramID"
+              autoComplete="telegramID"
+              autoFocus
+              onChange={updateTelegramID}
+            />
+            <FormControlLabel
+              control={<Checkbox value="remember" color="primary" />}
+              label="запомнить меня"
+            />
+            <Button
+              type="submit"
+              fullWidth
+              variant="contained"
+              sx={{ mt: 3, mb: 2 }}
+              onClick={handleAuthentication}
+
+            >
+              Sign In
+            </Button>
+            <Grid container>
+              <Grid item xs>
+                <Link href="#" variant="body2">
+                  Forgot password?
+                </Link>
+              </Grid>
+              <Grid item>
+                <Link href="#" variant="body2">
+                  {"Don't have an account? Sign Up"}
+                </Link>
+              </Grid>
+            </Grid>
+          </Box>
+        </Box>
+        <Copyright sx={{ mt: 8, mb: 4 }} />
+      </Container>
+    </ThemeProvider>
+  );
+}
+
+export default SignIn

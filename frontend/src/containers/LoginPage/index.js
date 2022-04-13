@@ -2,16 +2,16 @@ import React, { useState } from 'react'
 import { useDispatch } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
 import { login } from 'redux/actions/authAC'
-import Login from 'components/layouts/Auth/Login'
+import SignIn from 'components/layouts/Auth/Login'
 
 const LoginPage = () => {
   const [telegramID, setTelegramID] = useState('')
   const dispatch = useDispatch()
+  const navigate = useNavigate()
 
   const updateTelegramID = (e) => {
     setTelegramID(e.target.value)
   }
-  const navigate = useNavigate()
   const handleAuthentication = () => {
     const userData = {
       id: telegramID,
@@ -25,7 +25,7 @@ const LoginPage = () => {
     )
   }
 
-  return <Login 
+  return <SignIn 
             telegramID={telegramID}
             handleAuthentication={handleAuthentication}
             updateTelegramID={updateTelegramID}

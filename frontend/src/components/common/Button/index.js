@@ -1,32 +1,31 @@
 import React from 'react'
 import PropTypes from 'prop-types'
+import Button from '@mui/material/Button'
 
-import css from './Button.module.sass'
-
-const Button = ({
-  type, disabled, onClick, name,
+const CustomButton = ({
+  variant, disabled, onClick, name,
 }) => (
-  <button
-    /* eslint-disable-next-line react/button-has-type */
-    type={type}
-    disabled={disabled && null}
-    onClick={onClick}
-    className={css.button}
-  >
-    {name}
-  </button>
+    <Button
+      sc={{ color: '#fff'}}
+      variant={variant}
+      disabled={disabled}
+      onClick={onClick}
+      >
+      {name}
+    </Button>
 )
 
-Button.propTypes = {
+CustomButton.propTypes = {
   onClick: PropTypes.func.isRequired,
   name: PropTypes.string.isRequired,
   disabled: PropTypes.bool,
   type: PropTypes.string,
 }
 
-Button.defaultProps = {
-  disabled: null,
+CustomButton.defaultProps = {
+  disabled: false,
   type: 'button',
+  variant: 'outlined'
 }
 
-export default Button
+export default CustomButton
