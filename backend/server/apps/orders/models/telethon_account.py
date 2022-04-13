@@ -23,3 +23,10 @@ class TelethonAccount(TimeStampedModel, ActiveModel):
         default=False,
         db_index=True,
     )
+
+    def __str__(self):
+        if not self.is_active:
+            return f"!НЕАКТИВЕН! {str(self.phone_number)}"
+        if not self.is_initialized:
+            return f"!НЕИНИЦИАЛИЗИРОВАН! {str(self.phone_number)}"
+        return str(self.phone_number)

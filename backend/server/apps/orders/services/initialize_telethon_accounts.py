@@ -19,6 +19,7 @@ def initialize_telethon_accounts(queryset=None):
         try:
             client.connect()
         except:
+            client.disconnect()
             account.is_active = False
             account.save()
             initialize_telethon_accounts(queryset)
@@ -30,6 +31,7 @@ def initialize_telethon_accounts(queryset=None):
                     phone_number, input(f"[{phone_number}] Enter the code: ")
                 )
             except:
+                client.disconnect()
                 print(f"\033[93mНе удалось войти в аккаунт {phone_number}\033[0m")
                 continue
         if client.is_user_authorized():
