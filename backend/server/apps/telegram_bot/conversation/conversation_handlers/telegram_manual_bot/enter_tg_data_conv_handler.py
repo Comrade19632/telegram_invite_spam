@@ -6,8 +6,8 @@ from apps.telegram_bot.conversation.handlers.telegram_manual_bot import (
     enter_hash_id,
     enter_phone_number,
     data_validation,
-    password_entry,
-    password_check,
+    verification_code,
+    code_check,
     next_conv_menu,
 )
 
@@ -41,9 +41,9 @@ def enter_tg_data_conv_handler():
             DATA_VALIDATION: [MessageHandler(Filters.text, data_validation)],
             RESULT_OF_VALIDATION: [
                 CallbackQueryHandler(start, pattern="^" + str(CHANGE) + "$"),
-                CallbackQueryHandler(password_entry, pattern="^" + str(CONFIRM) + "$"),
+                CallbackQueryHandler(verification_code, pattern="^" + str(CONFIRM) + "$"),
             ],
-            CHECK_PASS: [MessageHandler(Filters.text, password_check)],
+            CHECK_PASS: [MessageHandler(Filters.text, code_check)],
             SELECTING_ACTION: [
                 CallbackQueryHandler(next_conv_menu, pattern="^" + str(START_PROMO) + "$"),
                 CallbackQueryHandler(start, pattern="^" + str(ADD_TG_ACC) + "$"),

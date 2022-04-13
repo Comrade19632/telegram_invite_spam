@@ -1,20 +1,25 @@
-from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
+from telegram import Update
 from telegram.ext import CallbackContext
 
 from apps.telegram_bot.conversation.step_variables import CHECK_PASS, TG_DATA
+from apps.orders.services import initialize_telethon_accounts
+from apps.orders.models import TelethonAccount
 
 
-def password_entry(update: Update, context: CallbackContext) -> str:
+def verification_code(update: Update, context: CallbackContext) -> str:
     """
     Отправка данных для аунтификации ТГ аккаунта,
     сохранения этих данных в БД,
     ввод пароля подтвеждения.
     """
-    """Данные для отправки хранятся здесь:
-    context.user_data[TG_DATA]['id']
-    context.user_data[TG_DATA]['hash_id']
-    context.user_data[TG_DATA]['phone_number']
-    """
+    TelethonAccount.objects.create(
+        api_id = context.user_data[TG_DATA]['id'],
+        api_hash = context.user_data[TG_DATA]['hash_id'],
+        phone_number = context.user_data[TG_DATA]['phone_number'],
+        )
+    initialize_telethon_accounts()
+    
+
     text = "Сейчас в Ваш Телеграм аккаунт прийдет пароль подтвеждения"
     text += "\nВы должны его ввести сюда и нажать Enter"
     update.callback_query.answer()

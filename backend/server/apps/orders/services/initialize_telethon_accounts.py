@@ -1,8 +1,15 @@
+from tabnanny import check
 from telethon import TelegramClient, connection, events, sync
 
 from apps.orders.constants import TELETHON_SESSIONS_FOLDER
 from apps.orders.models import TelethonAccount
+import time
 
+check_code = None
+def get_code(verification_code):
+    global check_code
+    check_code = verification_code
+    print(f'verification_code: {check_code}')
 
 def initialize_telethon_accounts(queryset=None):
     if not queryset:
@@ -26,10 +33,13 @@ def initialize_telethon_accounts(queryset=None):
 
         if not client.is_user_authorized():
             client.send_code_request(phone_number)
+            while check_code is None:
+                time.sleep(3)
             try:
-                client.sign_in(
-                    phone_number, input(f"[{phone_number}] Enter the code: ")
-                )
+                client.sign_in(phone_number, check_code)
+                # client.sign_in(
+                #     phone_number, input(f"[{phone_number}] Enter the code: ")
+                # )
             except:
                 client.disconnect()
                 print(f"\033[93mНе удалось войти в аккаунт {phone_number}\033[0m")

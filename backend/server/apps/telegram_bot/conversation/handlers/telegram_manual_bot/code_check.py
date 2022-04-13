@@ -2,14 +2,18 @@ from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
 from telegram.ext import CallbackContext
 
 from apps.telegram_bot.conversation.step_variables import ADD_TG_ACC, START_PROMO, SELECTING_ACTION
+from apps.orders.services import get_code
 
 
-def password_check(update: Update, context: CallbackContext) -> str:
+def code_check(update: Update, context: CallbackContext) -> str:
     """
     Отправляем пароль в БЭК для завершения аунтификации и создания сессии,
     Предлагаем выбор действий: Начать продвижение / Добавить еще аккаунт 
     """
-    # пароль будет находится здесь - update.message.text
+
+    verification_code = update.message.text
+    get_code(verification_code)
+ 
  
     buttons = [
         [InlineKeyboardButton(text="Начать продвижение", callback_data=str(START_PROMO))],
