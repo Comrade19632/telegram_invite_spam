@@ -1,0 +1,33 @@
+@use "styles/colors" as color
+
+.container
+  height: 120px
+  margin: 0 5%
+  align-items: center
+  justify-content: space-between
+  background: color.$primary
+  display: flex
+
+  .thumbnail
+    flex-direction: column
+    margin-left: 50px
+
+    h1
+      color: white
+      font-size: 50pt
+      text-transform: uppercase
+      font-weight: 900
+      letter-spacing: -15px
+
+    a
+      color: white
+      text-transform: uppercase
+      text-align: center
+
+  .buttons
+    margin-right: 20px
+
+    button
+      font-weight: 600
+      padding: 10px 20px
+      margin-right: 50px
