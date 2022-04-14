@@ -31,6 +31,7 @@ ALLOWED_HOSTS = [
     "127.0.0.1",
     "0.0.0.0",
     "localhost",
+    "backend",
     "zaiym-bez-procentov.online",
     "www.zaiym-bez-procentov.online",
 ]

@@ -34,9 +34,6 @@ def verify_telegram_authentication(request_data):
     Instructions - https://core.telegram.org/widgets/login#checking-authorization
     """
 
-    if settings.DEBUG:
-        return request_data
-
     request_data = request_data.copy()
     bot_token = settings.TELEGRAM_BOT_TOKEN
 
