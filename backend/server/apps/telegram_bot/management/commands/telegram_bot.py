@@ -12,7 +12,7 @@ class Command(BaseCommand):
         from aiogram import executor
         from apps.telegram_bot.services.handlers.telegram_bot import dp
 
-        executor.start_polling(dp, on_startup=self.on_startup)
+        # executor.start_polling(dp, on_startup=self.on_startup)
 
     async def on_startup(self, dp):
         """базовые действия при старте"""
