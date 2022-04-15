@@ -36,5 +36,6 @@ class Command(BaseCommand):
         await dp.bot.set_my_commands(
             [
                 types.BotCommand("add_account", "Добавить аккаунт в бота"),
+                types.BotCommand("get_accounts", "Посмотреть все мои аккаунты"),
             ]
         )
