@@ -14,7 +14,12 @@ base_menu_keyboard = ReplyKeyboardMarkup(
       KeyboardButton(text="Рассылка"),
       KeyboardButton(text="Приглашения"),
     ],
-  ]
+    [
+      KeyboardButton(text="Парсинг аккаунтов"),
+      KeyboardButton(text="Выход"),
+    ],
+  ],
+  resize_keyboard=True
 )
 
 @dp.message_handler(Command("start"))

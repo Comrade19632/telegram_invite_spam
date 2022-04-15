@@ -22,6 +22,7 @@ from apps.orders.constants import TELETHON_SESSIONS_FOLDER
 from apps.telegram_bot.constants import API_LINK_FOR_TELEGRAM_BOTS
 from apps.telegram_bot.management.loaders.telegram_manual_bot_loader import dp
 from apps.telegram_bot.services import get_jwt_token
+from aiogram.dispatcher.filters import Command
 
 
 class Form(StatesGroup):
@@ -31,6 +32,7 @@ class Form(StatesGroup):
     verification_code = State()  # Will be represented in storage as 'Form:phone_number'
 
 
+@dp.message_handler(Command("add_account"))
 @dp.message_handler(text="Добавить аккаунт")
 async def cmd_add_account(message: types.Message):
     """
@@ -44,7 +46,7 @@ async def cmd_add_account(message: types.Message):
 
 # You can use state '*' if you need to handle all states
 @dp.message_handler(state="*", commands="cancel")
-@dp.message_handler(Text(equals="cancel", ignore_case=True), state="*")
+@dp.message_handler(Text(equals="Выход", ignore_case=True), state="*")
 async def cancel_handler(message: types.Message, state: FSMContext):
     """
     Allow user to cancel any action
