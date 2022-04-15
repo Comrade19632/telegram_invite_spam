@@ -31,7 +31,7 @@ class Form(StatesGroup):
     verification_code = State()  # Will be represented in storage as 'Form:phone_number'
 
 
-@dp.message_handler(commands="add_account")
+@dp.message_handler(text="Добавить аккаунт")
 async def cmd_add_account(message: types.Message):
     """
     Conversation's entry point
