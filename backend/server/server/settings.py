@@ -54,6 +54,7 @@ INSTALLED_APPS = [
     "apps.telegram_bot",
     "apps.users",
     "apps.orders",
+    "apps.telethon_app",
 ]
 
 DEFAULT_RENDERER_CLASSES = ("rest_framework.renderers.JSONRenderer",)

@@ -13,11 +13,9 @@ class TelethonAccount(TimeStampedModel, ActiveModel):
         blank=True,
         null=True,
     )
-    api_id = CharField(max_length=128, verbose_name="Telegram api id")
-    api_hash = CharField(max_length=128, verbose_name="Telegram api hash")
-    phone_number = PhoneNumberField(
-        verbose_name="Номер телефона",
-    )
+    api_id = CharField(max_length=128, verbose_name="Telegram api id", unique=True)
+    api_hash = CharField(max_length=128, verbose_name="Telegram api hash", unique=True)
+    phone_number = PhoneNumberField(verbose_name="Номер телефона", unique=True)
     is_initialized = BooleanField(
         verbose_name="Инициализирован?",
         default=False,

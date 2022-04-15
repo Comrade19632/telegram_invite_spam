@@ -7,11 +7,11 @@ import traceback
 
 from telethon.sync import TelegramClient
 from telethon.tl.functions.channels import JoinChannelRequest
-from telethon.tl.functions.messages import ImportChatInviteRequest, CheckChatInviteRequest
+from telethon.tl.functions.messages import CheckChatInviteRequest, ImportChatInviteRequest
+from telethon.tl.types import ChatInviteAlready
 
 from apps.orders.constants import PARS_RESULTS_FOLDER, TELETHON_SESSIONS_FOLDER
 from apps.orders.models import TelethonAccount
-from telethon.tl.types import ChatInviteAlready
 
 
 def pars(target_chat_link, user_account=None):
@@ -48,7 +48,10 @@ def pars(target_chat_link, user_account=None):
         chat = client.get_entity(target_chat_link)
         client(JoinChannelRequest(chat))
     except ValueError:
-        if isinstance(check_invite := client(CheckChatInviteRequest(target_chat_link)), ChatInviteAlready):
+        if isinstance(
+            check_invite := client(CheckChatInviteRequest(target_chat_link)),
+            ChatInviteAlready,
+        ):
             chat = check_invite.chat
         else:
             updates = client(ImportChatInviteRequest(target_chat_link))
