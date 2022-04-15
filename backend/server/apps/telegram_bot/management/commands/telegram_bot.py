@@ -1,22 +1,32 @@
 from django.conf import settings
 from django.core.management.base import BaseCommand
 
-from telegram.ext import Updater
-
-from apps.telegram_bot.services.conversation_handlers import get_menu_conv_handler
+from aiogram import types
 
 
 class Command(BaseCommand):
     help = "Running telegram bot"
 
     def handle(self, *args, **kwargs):
-        updater = Updater(settings.TELEGRAM_BOT_TOKEN, use_context=True)
+        """инициализация бота"""
+        from aiogram import executor
+        from apps.telegram_bot.services.handlers.telegram_bot import dp
 
-        # Get the dispatcher to register handlers
-        dispatcher = updater.dispatcher
-        dispatcher.add_handler(get_menu_conv_handler())
+        executor.start_polling(dp, on_startup=self.on_startup)
 
-        # Start the Bot
-        updater.start_polling()
+    async def on_startup(self, dp):
+        """базовые действия при старте"""
 
-        updater.idle()
+        # установка фильтров и мидлварей
+        # from apps.telegram_bot.conversation.filters import filters
+        # from apps.telegram_bot.management.middlewares import middlewares
+        # filters.setup(dp)
+        # middlewares.setup(dp)
+
+        # команды в боте
+        await dp.bot.set_my_commands(
+            [
+                types.BotCommand("start", "Запустить бота"),
+                types.BotCommand("help", "Помощь"),
+            ]
+        )
