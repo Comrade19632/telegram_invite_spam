@@ -30,6 +30,11 @@ class TelethonAccount(TimeStampedModel, ActiveModel):
         default=False,
         db_index=True,
     )
+    is_busy = BooleanField(
+        verbose_name="Занят работой?",
+        default=False,
+        db_index=True,
+    )
 
     def __str__(self):
         if not self.is_active:
