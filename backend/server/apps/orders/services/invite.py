@@ -38,6 +38,9 @@ cy = "\033[1;36m"
 
 
 def invite(order):
+    order.in_progress = True
+    order.save()
+
     loop = get_or_create_eventloop()
 
     input_file = pars(
@@ -45,6 +48,8 @@ def invite(order):
     )
 
     if not input_file:
+        order.in_progress = False
+        order.save()
         return
 
     if order.user:
@@ -57,6 +62,8 @@ def invite(order):
         ).first()
     if not account:
         print("you dont have any active accounts")
+        order.in_progress = False
+        order.save()
         if order.user:
             send_message_to_user.delay(
                 settings.TELEGRAM_MANUAL_BOT_TOKEN,
@@ -100,6 +107,8 @@ def invite(order):
         print("Недействительная ссылка на целевую группу")
         account.is_busy = False
         account.save()
+        order.in_progress = False
+        order.save()
         if order.user:
             send_message_to_user.delay(
                 settings.TELEGRAM_MANUAL_BOT_TOKEN,
@@ -129,6 +138,18 @@ def invite(order):
 
     for user in users:
         order.refresh_from_db()
+        if not order.in_progress:
+            print(re + "[+] Order has stopped")
+            client.disconnect()
+            account.is_busy = False
+            account.save()
+            if order.user:
+                send_message_to_user.delay(
+                    settings.TELEGRAM_MANUAL_BOT_TOKEN,
+                    order.user.telegram_id,
+                    "Заказ завершён",
+                )
+            return
         if str(user["id"]) in order.affected_users:
             print(gr + "[+] This user already has been affected")
             continue
@@ -231,6 +252,8 @@ def invite(order):
             return
 
     client.disconnect()
+    order.in_progress = False
+    order.save()
     account.is_busy = False
     account.save()
     send_message_to_user.delay(

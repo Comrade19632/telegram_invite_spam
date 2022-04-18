@@ -20,4 +20,5 @@ class InviteOrderSerializer(ModelSerializer):
             "donor_chat_link",
             "affected_users",
             "created",
+            "in_progress",
         )

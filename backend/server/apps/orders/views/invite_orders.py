@@ -1,3 +1,4 @@
+import django_filters.rest_framework
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.status import HTTP_200_OK
@@ -11,6 +12,7 @@ from ..tasks import invite
 class InviteOrdersViewSet(ModelViewSet):
     queryset = InviteOrder.objects.all()
     serializer_class = InviteOrderSerializer
+    filter_fields = ["in_progress"]
 
     def get_queryset(self):
         queryset = super().get_queryset()
@@ -29,4 +31,16 @@ class InviteOrdersViewSet(ModelViewSet):
     def start_invite_order(self, request, pk):
         order = self.get_object()
         invite.delay(order.id)
+        return Response(status=HTTP_200_OK)
+
+    @action(
+        methods=["GET"],
+        detail=True,
+        url_name="stop",
+        url_path="stop",
+    )
+    def stop_invite_order(self, request, pk):
+        order = self.get_object()
+        order.in_progress = False
+        order.save()
         return Response(status=HTTP_200_OK)

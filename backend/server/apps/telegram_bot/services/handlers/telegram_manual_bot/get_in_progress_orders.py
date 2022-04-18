@@ -3,7 +3,7 @@ from json import loads
 import aiogram.utils.markdown as md
 import requests
 from aiogram import types
-from aiogram.dispatcher.filters import Command, Text
+from aiogram.dispatcher.filters import Command
 from aiogram.types import ParseMode
 from aiogram.utils.callback_data import CallbackData
 
@@ -12,15 +12,15 @@ from apps.telegram_bot.management.loaders.telegram_manual_bot_loader import dp
 from apps.telegram_bot.services import get_jwt_token
 
 
-@dp.message_handler(Command("get_accounts"))
-@dp.message_handler(text="Ваши аккаунты")
-async def cmd_get_accounts(message: types.Message):
+@dp.message_handler(Command("get_in_progress_orders"))
+@dp.message_handler(text="Ваши заказы в процессе")
+async def cmd_get_in_progress_orders(message: types.Message):
     token = get_jwt_token(message.from_user.id)
     request_headers = {
         "Authorization": f"Bearer {token}",
         "Content-Type": "application/json",
     }
-    path = "telethon/accounts/"
+    path = "orders/invite?in_progress=true"
     url = API_LINK_FOR_TELEGRAM_BOTS + path
 
     response = requests.get(url, headers=request_headers)
@@ -32,44 +32,27 @@ async def cmd_get_accounts(message: types.Message):
     content = loads(response.text)
 
     if not content:
-        await message.reply("У вас нет добавленных аккаунтов")
+        await message.reply("У вас нет заказов в процессе")
         return
 
-    for account in content:
+    for order in content:
         keyboard = types.InlineKeyboardMarkup()
         button = types.InlineKeyboardButton(
-            text="Активировать", callback_data=cb.new(id=account["id"])
+            text="Остановить", callback_data=cb.new(id=order["id"])
         )
         keyboard.add(button)
         await message.reply(
             md.text(
-                md.text("Api id: ", md.bold(account["api_id"])),
-                md.text("Api hash: ", md.bold(account["api_hash"])),
-                md.text("Номер телефона: ", account["phone_number"]),
-                md.text(
-                    "Инициализирован?",
-                    md.bold("Да") if account["is_initialized"] else md.bold("Нет"),
-                ),
-                md.text(
-                    "Активен?",
-                    md.bold("Да") if account["is_active"] else md.bold("Нет"),
-                ),
-                md.text(
-                    "Дата последней деактивации:",
-                    md.bold(account["date_of_last_deactivate"]),
-                ),
-                md.text(
-                    "Причина последней деактивации:",
-                    md.bold(account["reason_of_last_deactivate"]),
-                ),
+                md.text("Целевая группа: ", md.bold(order["target_chat_link"])),
+                md.text("Донор группа: ", md.bold(order["donor_chat_link"])),
                 sep="\n",
             ),
             parse_mode=ParseMode.MARKDOWN,
-            reply_markup=keyboard if not account["is_active"] else None,
+            reply_markup=keyboard,
         )
 
 
-cb = CallbackData("account_activate", "id")
+cb = CallbackData("order_stop", "id")
 
 
 @dp.callback_query_handler(cb.filter())
@@ -80,11 +63,11 @@ async def callbacks(call: types.CallbackQuery, callback_data: dict):
         "Authorization": f"Bearer {token}",
         "Content-Type": "application/json",
     }
-    path = f"telethon/accounts/{id}/activate/"
+    path = f"orders/invite/{id}/stop/"
     url = API_LINK_FOR_TELEGRAM_BOTS + path
     response = requests.get(url, headers=request_headers)
 
     if not response.status_code == 200:
         await call.answer(text="Произошла ошибка, попробуйте позже")
         return
-    await call.answer(text="Аккаунт успешно активирован, обновите список")
+    await call.answer(text="Заказ на инвайт успешно остановлен, обновите список")
