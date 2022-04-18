@@ -7,6 +7,8 @@ import sys
 import time
 import traceback
 
+from django.conf import settings
+
 from telethon.errors.rpcerrorlist import (
     ChatWriteForbiddenError,
     FloodWaitError,
@@ -22,9 +24,11 @@ from telethon.tl.functions.channels import InviteToChannelRequest, JoinChannelRe
 from telethon.tl.functions.messages import GetDialogsRequest
 from telethon.tl.types import InputPeerChannel, InputPeerEmpty, InputPeerUser
 
-from apps.orders.constants import TELETHON_SESSIONS_FOLDER
-from apps.orders.models import TelethonAccount
 from apps.orders.services.pars import pars
+from apps.telegram_bot.tasks import send_message_to_user
+from apps.telethon_app.models import TelethonAccount
+
+from .get_or_create_eventloop import get_or_create_eventloop
 
 
 re = "\033[1;31m"
@@ -33,7 +37,14 @@ cy = "\033[1;36m"
 
 
 def invite(order):
-    input_file = pars(target_chat_link=order.donor_chat_link, user_account=order.user)
+    loop = get_or_create_eventloop()
+
+    input_file = pars(
+        target_chat_link=order.donor_chat_link, user_account=order.user, loop=loop
+    )
+
+    if not input_file:
+        return
 
     if order.user:
         account = TelethonAccount.objects.filter(
@@ -45,6 +56,12 @@ def invite(order):
         ).first()
     if not account:
         print("you dont have any active accounts")
+        if order.user:
+            send_message_to_user.delay(
+                settings.TELEGRAM_MANUAL_BOT_TOKEN,
+                order.user.telegram_id,
+                "У вас не осталось активных аккаунтов, заказ завершён",
+            )
         return
 
     api_id = account.api_id
@@ -52,7 +69,7 @@ def invite(order):
     phone_number = account.phone_number
 
     client = TelegramClient(
-        TELETHON_SESSIONS_FOLDER + str(phone_number), api_id, api_hash
+        "telethon_sessions/" + str(phone_number), api_id, api_hash, loop=loop
     )
 
     try:
@@ -68,8 +85,25 @@ def invite(order):
 
     print(f"Start with {phone_number} account")
 
-    chat = client.get_entity(order.target_chat_link)
-    client(JoinChannelRequest(chat))
+    try:
+        chat = client.get_entity(order.target_chat_link)
+        client(JoinChannelRequest(chat))
+    except ValueError:
+        print("Недействительная ссылка на целевую группу")
+        if order.user:
+            send_message_to_user.delay(
+                settings.TELEGRAM_MANUAL_BOT_TOKEN,
+                order.user.telegram_id,
+                f"Недействительная ссылка на целевую группу, заказ завершён",
+            )
+        return
+
+    if order.user:
+        send_message_to_user.delay(
+            settings.TELEGRAM_MANUAL_BOT_TOKEN,
+            order.user.telegram_id,
+            f"Успешно стартанул инвайт с аккаунта {phone_number}",
+        )
 
     users = []
     with open(input_file, encoding="UTF-8") as f:
@@ -103,6 +137,12 @@ def invite(order):
                 re
                 + "[!] Getting Flood Error from telegram. \n[!] Rerun function with another account"
             )
+            if order.user:
+                send_message_to_user.delay(
+                    settings.TELEGRAM_MANUAL_BOT_TOKEN,
+                    order.user.telegram_id,
+                    f"Аккаунт {phone_number} временно заблокирован, перезапускаем инвайт на другом аккаунте",
+                )
             invite(order)
             return
         except PeerFloodError:
@@ -113,6 +153,12 @@ def invite(order):
                 re
                 + "[!] Getting Flood Error from telegram. \n[!] Rerun function with another account"
             )
+            if order.user:
+                send_message_to_user.delay(
+                    settings.TELEGRAM_MANUAL_BOT_TOKEN,
+                    order.user.telegram_id,
+                    f"Аккаунт {phone_number} временно заблокирован, перезапускаем инвайт на другом аккаунте",
+                )
             invite(order)
             return
         except UserPrivacyRestrictedError:
@@ -141,6 +187,12 @@ def invite(order):
             account.is_active = False
             account.save()
             print(re + "[!] Account can`t write in this chat")
+            if order.user:
+                send_message_to_user.delay(
+                    settings.TELEGRAM_MANUAL_BOT_TOKEN,
+                    order.user.telegram_id,
+                    f"Аккаунт {phone_number} не имеет права инвайтить в этот чат, перезапускаем инвайт на другом аккаунте",
+                )
             invite(order)
             return
         except:

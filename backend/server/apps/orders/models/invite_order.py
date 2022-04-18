@@ -16,7 +16,7 @@ class InviteOrder(TimeStampedModel, ActiveModel):
     )
     target_chat_link = CharField(max_length=128, verbose_name="target chat link")
     donor_chat_link = CharField(max_length=128, verbose_name="donor chat link")
-    affected_users = ArrayField(CharField(max_length=128))
+    affected_users = ArrayField(CharField(max_length=128), default=list)
 
     def __str__(self):
         if not self.is_active:

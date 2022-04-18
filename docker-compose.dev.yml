@@ -48,6 +48,8 @@ services:
             context: .
             dockerfile: ./docker/backend/Dockerfile
         entrypoint: /app/docker/backend/celery-entrypoint.dev.sh
+        volumes:
+            - .:/app
         env_file:
         - ./.env.dev
         depends_on:

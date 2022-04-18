@@ -77,7 +77,7 @@ async def process_phone_number(message: types.Message, state: FSMContext):
     async with state.proxy() as data:
         data["phone_number"] = message.text
         client = await TelegramClient(
-            TELETHON_SESSIONS_FOLDER + data["phone_number"],
+            data["phone_number"],
             data["api_id"],
             data["api_hash"],
         )

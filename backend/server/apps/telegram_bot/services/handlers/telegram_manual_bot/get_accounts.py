@@ -11,7 +11,7 @@ from apps.telegram_bot.services import get_jwt_token
 
 
 @dp.message_handler(text="Ваши аккаунты")
-async def cmd_add_account(message: types.Message):
+async def cmd_get_accounts(message: types.Message):
     token = get_jwt_token(message.from_user.id)
     request_headers = {
         "Authorization": f"Bearer {token}",
