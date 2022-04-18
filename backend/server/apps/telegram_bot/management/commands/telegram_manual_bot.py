@@ -37,6 +37,9 @@ class Command(BaseCommand):
             [
                 types.BotCommand("add_account", "Добавить аккаунт в бота"),
                 types.BotCommand("get_accounts", "Посмотреть все мои аккаунты"),
+                types.BotCommand(
+                    "get_in_progress_orders", "Посмотреть все мои заказы в процессе"
+                ),
                 types.BotCommand("start", "Начать работу"),
                 types.BotCommand("invite", "Нчать инвайтинг"),
                 types.BotCommand("cancel", "Закончить работу"),
