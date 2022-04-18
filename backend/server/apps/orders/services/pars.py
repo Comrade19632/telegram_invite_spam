@@ -1,5 +1,6 @@
 import configparser
 import csv
+import datetime
 import os
 import sys
 import time
@@ -50,6 +51,10 @@ def pars(target_chat_link, user_account=None, loop=None):
         client.disconnect()
         traceback.print_exc()
         account.is_active = False
+        account.date_of_last_deactivate = datetime.datetime.now()
+        account.reason_of_last_deactivate = (
+            "Не удалось подключится, возможно аккаунт забанен"
+        )
         account.save()
         pars(target_chat_link, user_account)
 
