@@ -16,6 +16,7 @@ from telethon.errors.rpcerrorlist import (
     FloodWaitError,
     PhoneCodeInvalidError,
     PhoneNumberInvalidError,
+    SessionPasswordNeededError,
 )
 
 from apps.telegram_bot.constants import API_LINK_FOR_TELEGRAM_BOTS
@@ -163,6 +164,11 @@ async def process_verification_code(message: types.Message, state: FSMContext):
             await message.reply(
                 "Слишком много запросов на авторизацию, попробуйте снова через некоторое время, либо используйте другой аккаунт"
             )
+            await state.finish()
+            return
+        except SessionPasswordNeededError:
+            await client.disconnect()
+            await message.reply("Отключите 2FA на аккаунте и попробуйте снова")
             await state.finish()
             return
         except:
