@@ -1,6 +1,6 @@
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from rest_framework.status import HTTP_200_OK, HTTP_400_BAD_REQUEST
+from rest_framework.status import HTTP_200_OK
 from rest_framework.viewsets import ModelViewSet
 
 from ..models import InviteOrder
@@ -28,8 +28,5 @@ class InviteOrdersViewSet(ModelViewSet):
     )
     def start_invite_order(self, request, pk):
         order = self.get_object()
-        if request.user == order.user:
-            invite.delay(order.id)
-            return Response(status=HTTP_200_OK)
-        else:
-            return Response(status=HTTP_400_BAD_REQUEST)
+        invite.delay(order.id)
+        return Response(status=HTTP_200_OK)

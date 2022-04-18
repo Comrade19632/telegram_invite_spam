@@ -105,7 +105,7 @@ async def create_order(message: types.Message, state: FSMContext):
             await message.reply("Запрос на активацию инвайта успешно отправлен")
             await state.finish()
             return
-        elif response.status_code == 400:
+        elif response.status_code == 404:
             await message.reply("Что то пошло не так, выводим вам ошибку")
             await message.reply(response.text)
             await state.finish()

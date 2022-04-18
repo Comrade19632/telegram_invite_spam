@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import configparser
 import csv
+import datetime
 import os
 import random
 import sys
@@ -79,6 +80,10 @@ def invite(order):
         client.disconnect()
         traceback.print_exc()
         account.is_active = False
+        account.date_of_last_deactivate = datetime.datetime.now()
+        account.reason_of_last_deactivate = (
+            "Не удалось подключится, возможно аккаунт забанен"
+        )
         account.save()
         invite(order)
         return
@@ -132,6 +137,8 @@ def invite(order):
         except FloodWaitError:
             client.disconnect()
             account.is_active = False
+            account.date_of_last_deactivate = datetime.datetime.now()
+            account.reason_of_last_deactivate = "Флуд, аккаунт временно заблокирован"
             account.save()
             print(
                 re
@@ -148,6 +155,8 @@ def invite(order):
         except PeerFloodError:
             client.disconnect()
             account.is_active = False
+            account.date_of_last_deactivate = datetime.datetime.now()
+            account.reason_of_last_deactivate = "Флуд, аккаунт временно заблокирован"
             account.save()
             print(
                 re
@@ -186,6 +195,10 @@ def invite(order):
             client.disconnect()
             account.is_active = False
             account.save()
+            account.date_of_last_deactivate = datetime.datetime.now()
+            account.reason_of_last_deactivate = (
+                "Аккаунт был отключен, потому как не мог писать в чат донор"
+            )
             print(re + "[!] Account can`t write in this chat")
             if order.user:
                 send_message_to_user.delay(
@@ -198,6 +211,10 @@ def invite(order):
         except:
             client.disconnect()
             account.is_active = False
+            account.date_of_last_deactivate = datetime.datetime.now()
+            account.reason_of_last_deactivate = (
+                "Аккаунт был отключен по неизвестной причине"
+            )
             account.save()
             traceback.print_exc()
             print(re + "[!] Unexpected Error")

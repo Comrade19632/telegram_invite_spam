@@ -22,4 +22,6 @@ class TelethonAccountSerializer(ModelSerializer):
             "is_initialized",
             "is_active",
             "created",
+            "date_of_last_deactivate",
+            "reason_of_last_deactivate",
         )
