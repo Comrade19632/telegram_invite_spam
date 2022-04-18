@@ -5,16 +5,19 @@ import sys
 import time
 import traceback
 
+from django.conf import settings
+
+from telethon.errors.rpcerrorlist import InviteHashExpiredError
 from telethon.sync import TelegramClient
 from telethon.tl.functions.channels import JoinChannelRequest
 from telethon.tl.functions.messages import CheckChatInviteRequest, ImportChatInviteRequest
 from telethon.tl.types import ChatInviteAlready
 
-from apps.orders.constants import PARS_RESULTS_FOLDER, TELETHON_SESSIONS_FOLDER
-from apps.orders.models import TelethonAccount
+from apps.telegram_bot.tasks import send_message_to_user
+from apps.telethon_app.models import TelethonAccount
 
 
-def pars(target_chat_link, user_account=None):
+def pars(target_chat_link, user_account=None, loop=None):
     if user_account:
         account = TelethonAccount.objects.filter(
             is_initialized=True, is_active=True, owner=user_account
@@ -25,13 +28,19 @@ def pars(target_chat_link, user_account=None):
         ).first()
     if not account:
         print("you dont have any active accounts")
+        if user_account:
+            send_message_to_user.delay(
+                settings.TELEGRAM_MANUAL_BOT_TOKEN,
+                user_account.telegram_id,
+                "У вас не осталось активных аккаунтов, заказ завершён",
+            )
         return
     api_id = account.api_id
     api_hash = account.api_hash
     phone_number = account.phone_number
 
     client = TelegramClient(
-        TELETHON_SESSIONS_FOLDER + str(phone_number), api_id, api_hash
+        "telethon_sessions/" + str(phone_number), api_id, api_hash, loop=loop
     )
 
     try:
@@ -48,14 +57,24 @@ def pars(target_chat_link, user_account=None):
         chat = client.get_entity(target_chat_link)
         client(JoinChannelRequest(chat))
     except ValueError:
-        if isinstance(
-            check_invite := client(CheckChatInviteRequest(target_chat_link)),
-            ChatInviteAlready,
-        ):
-            chat = check_invite.chat
-        else:
-            updates = client(ImportChatInviteRequest(target_chat_link))
-            chat = updates.chats[0]
+        try:
+            if isinstance(
+                check_invite := client(CheckChatInviteRequest(target_chat_link)),
+                ChatInviteAlready,
+            ):
+                chat = check_invite.chat
+            else:
+                updates = client(ImportChatInviteRequest(target_chat_link))
+                chat = updates.chats[0]
+        except InviteHashExpiredError:
+            print("Недействительная ссылка на донор группу")
+            if user_account:
+                send_message_to_user.delay(
+                    settings.TELEGRAM_MANUAL_BOT_TOKEN,
+                    user_account.telegram_id,
+                    "Недействительная ссылка на донор группу, заказ завершён",
+                )
+            return
 
     all_participants = []
     all_participants = client.get_participants(chat, aggressive=False)
@@ -63,7 +82,7 @@ def pars(target_chat_link, user_account=None):
     client.disconnect()
 
     with open(
-        PARS_RESULTS_FOLDER + f"{account.api_id}{chat.id}.csv", "w+", encoding="UTF-8"
+        "pars_results/" + f"{account.api_id}{chat.id}.csv", "w+", encoding="UTF-8"
     ) as f:
         writer = csv.writer(f, delimiter=";", lineterminator="\n")
         writer.writerow(

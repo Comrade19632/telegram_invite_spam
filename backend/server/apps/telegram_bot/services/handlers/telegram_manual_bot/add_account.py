@@ -6,7 +6,7 @@ import requests
 from aiogram import Bot, Dispatcher, types
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
 from aiogram.dispatcher import FSMContext
-from aiogram.dispatcher.filters import Text
+from aiogram.dispatcher.filters import Command, Text
 from aiogram.dispatcher.filters.state import State, StatesGroup
 from aiogram.types import ParseMode
 from aiogram.utils import executor
@@ -18,11 +18,9 @@ from telethon.errors.rpcerrorlist import (
     PhoneNumberInvalidError,
 )
 
-from apps.orders.constants import TELETHON_SESSIONS_FOLDER
 from apps.telegram_bot.constants import API_LINK_FOR_TELEGRAM_BOTS
 from apps.telegram_bot.management.loaders.telegram_manual_bot_loader import dp
 from apps.telegram_bot.services import get_jwt_token
-from aiogram.dispatcher.filters import Command
 
 
 class Form(StatesGroup):
@@ -100,7 +98,7 @@ async def process_phone_number(message: types.Message, state: FSMContext):
     async with state.proxy() as data:
         data["phone_number"] = message.text
         client = TelegramClient(
-            TELETHON_SESSIONS_FOLDER + data["phone_number"],
+            "backend/server/telethon_sessions/" + data["phone_number"],
             data["api_id"],
             data["api_hash"],
         )
@@ -144,7 +142,7 @@ async def process_verification_code(message: types.Message, state: FSMContext):
         data["verification_code"] = message.text
 
         client = TelegramClient(
-            TELETHON_SESSIONS_FOLDER + data["phone_number"],
+            "backend/server/telethon_sessions/" + data["phone_number"],
             data["api_id"],
             data["api_hash"],
         )
