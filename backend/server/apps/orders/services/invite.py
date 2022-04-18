@@ -49,11 +49,11 @@ def invite(order):
 
     if order.user:
         account = TelethonAccount.objects.filter(
-            is_initialized=True, is_active=True, owner=order.user
+            is_initialized=True, is_active=True, is_busy=False, owner=order.user
         ).first()
     else:
         account = TelethonAccount.objects.filter(
-            is_initialized=True, is_active=True
+            is_initialized=True, is_active=True, is_busy=False
         ).first()
     if not account:
         print("you dont have any active accounts")
@@ -65,6 +65,8 @@ def invite(order):
             )
         return
 
+    account.is_busy = True
+    account.save()
     api_id = account.api_id
     api_hash = account.api_hash
     phone_number = account.phone_number
@@ -84,6 +86,7 @@ def invite(order):
         account.reason_of_last_deactivate = (
             "Не удалось подключится, возможно аккаунт забанен"
         )
+        account.is_busy = False
         account.save()
         invite(order)
         return
@@ -95,6 +98,8 @@ def invite(order):
         client(JoinChannelRequest(chat))
     except ValueError:
         print("Недействительная ссылка на целевую группу")
+        account.is_busy = False
+        account.save()
         if order.user:
             send_message_to_user.delay(
                 settings.TELEGRAM_MANUAL_BOT_TOKEN,
@@ -139,6 +144,7 @@ def invite(order):
             account.is_active = False
             account.date_of_last_deactivate = datetime.datetime.now()
             account.reason_of_last_deactivate = "Флуд, аккаунт временно заблокирован"
+            account.is_busy = False
             account.save()
             print(
                 re
@@ -155,6 +161,7 @@ def invite(order):
         except PeerFloodError:
             client.disconnect()
             account.is_active = False
+            account.is_busy = False
             account.date_of_last_deactivate = datetime.datetime.now()
             account.reason_of_last_deactivate = "Флуд, аккаунт временно заблокирован"
             account.save()
@@ -194,11 +201,12 @@ def invite(order):
         except ChatWriteForbiddenError:
             client.disconnect()
             account.is_active = False
-            account.save()
+            account.is_busy = False
             account.date_of_last_deactivate = datetime.datetime.now()
             account.reason_of_last_deactivate = (
                 "Аккаунт был отключен, потому как не мог писать в чат донор"
             )
+            account.save()
             print(re + "[!] Account can`t write in this chat")
             if order.user:
                 send_message_to_user.delay(
@@ -211,6 +219,7 @@ def invite(order):
         except:
             client.disconnect()
             account.is_active = False
+            account.is_busy = False
             account.date_of_last_deactivate = datetime.datetime.now()
             account.reason_of_last_deactivate = (
                 "Аккаунт был отключен по неизвестной причине"
@@ -220,3 +229,12 @@ def invite(order):
             print(re + "[!] Unexpected Error")
             invite(order)
             return
+
+    client.disconnect()
+    account.is_busy = False
+    account.save()
+    send_message_to_user.delay(
+        settings.TELEGRAM_MANUAL_BOT_TOKEN,
+        order.user.telegram_id,
+        f"Заказ на инвайт успешно завершён",
+    )

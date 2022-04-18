@@ -21,11 +21,11 @@ from apps.telethon_app.models import TelethonAccount
 def pars(target_chat_link, user_account=None, loop=None):
     if user_account:
         account = TelethonAccount.objects.filter(
-            is_initialized=True, is_active=True, owner=user_account
+            is_initialized=True, is_active=True, is_busy=False, owner=user_account
         ).first()
     else:
         account = TelethonAccount.objects.filter(
-            is_initialized=True, is_active=True
+            is_initialized=True, is_active=True, is_busy=False
         ).first()
     if not account:
         print("you dont have any active accounts")
@@ -39,6 +39,8 @@ def pars(target_chat_link, user_account=None, loop=None):
     api_id = account.api_id
     api_hash = account.api_hash
     phone_number = account.phone_number
+    account.is_busy = True
+    account.save()
 
     client = TelegramClient(
         "telethon_sessions/" + str(phone_number), api_id, api_hash, loop=loop
@@ -51,6 +53,7 @@ def pars(target_chat_link, user_account=None, loop=None):
         client.disconnect()
         traceback.print_exc()
         account.is_active = False
+        account.is_busy = False
         account.date_of_last_deactivate = datetime.datetime.now()
         account.reason_of_last_deactivate = (
             "Не удалось подключится, возможно аккаунт забанен"
@@ -73,6 +76,8 @@ def pars(target_chat_link, user_account=None, loop=None):
                 chat = updates.chats[0]
         except InviteHashExpiredError:
             print("Недействительная ссылка на донор группу")
+            account.is_busy = False
+            account.save()
             if user_account:
                 send_message_to_user.delay(
                     settings.TELEGRAM_MANUAL_BOT_TOKEN,
@@ -127,4 +132,6 @@ def pars(target_chat_link, user_account=None, loop=None):
                 ]
             )
         f.close()
+        account.is_busy = False
+        account.save()
         return f.name
