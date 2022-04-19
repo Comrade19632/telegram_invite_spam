@@ -43,8 +43,8 @@ async def cmd_get_in_progress_orders(message: types.Message):
         keyboard.add(button)
         await message.reply(
             md.text(
-                md.text("Целевая группа: ", md.bold(order["target_chat_link"])),
-                md.text("Донор группа: ", md.bold(order["donor_chat_link"])),
+                md.text("Целевая группа: ", order["target_chat_link"]),
+                md.text("Донор группа: ", order["donor_chat_link"]),
                 sep="\n",
             ),
             parse_mode=ParseMode.MARKDOWN,
