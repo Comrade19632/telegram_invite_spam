@@ -20,6 +20,7 @@ from telethon.errors.rpcerrorlist import (
     UserNotMutualContactError,
     UserPrivacyRestrictedError,
     ChatAdminRequiredError,
+    UserBannedInChannelError,
 )
 from telethon.sync import TelegramClient
 from telethon.tl.functions.channels import InviteToChannelRequest, JoinChannelRequest
@@ -252,6 +253,24 @@ def invite(order):
                     settings.TELEGRAM_MANUAL_BOT_TOKEN,
                     order.user.telegram_id,
                     f"Аккаунт {phone_number} не имеет права инвайтить в этот чат, перезапускаем инвайт на другом аккаунте",
+                )
+            invite(order)
+            return
+        except UserBannedInChannelError:
+            client.disconnect()
+            account.is_active = False
+            account.is_busy = False
+            account.date_of_last_deactivate = datetime.datetime.now()
+            account.reason_of_last_deactivate = (
+                "Аккаунт был отключен, потому как он забанен в данном канале"
+            )
+            account.save()
+            print(re + "[!] Account can`t write in this chat")
+            if order.user:
+                send_message_to_user.delay(
+                    settings.TELEGRAM_MANUAL_BOT_TOKEN,
+                    order.user.telegram_id,
+                    f"Аккаунт {phone_number} забанен в данном канале, перезапускаем инвайт на другом аккаунте",
                 )
             invite(order)
             return
