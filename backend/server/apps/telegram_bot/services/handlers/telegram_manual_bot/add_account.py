@@ -128,11 +128,13 @@ async def process_phone_number(message: types.Message, state: FSMContext):
             await state.finish()
             return
         except:
+            await client.disconnect()
             traceback.print_exc()
             await message.reply("Что то пошло не так, попробуйте снова")
             await state.finish()
             return
 
+    await client.disconnect()
     await Form.next()
     await message.reply("Введите код верификации, полученный в телеграме")
 
