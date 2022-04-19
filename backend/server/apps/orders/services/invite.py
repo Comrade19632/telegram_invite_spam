@@ -19,6 +19,7 @@ from telethon.errors.rpcerrorlist import (
     UserKickedError,
     UserNotMutualContactError,
     UserPrivacyRestrictedError,
+    ChatAdminRequiredError,
 )
 from telethon.sync import TelegramClient
 from telethon.tl.functions.channels import InviteToChannelRequest, JoinChannelRequest
@@ -237,6 +238,23 @@ def invite(order):
                 )
             invite(order)
             return
+        except ChatAdminRequiredError:
+            client.disconnect()
+            account.is_active = False
+            account.is_busy = False
+            account.date_of_last_deactivate = datetime.datetime.now()
+            account.reason_of_last_deactivate = (
+                "Аккаунт был отключен, потому как не мог писать в чат донор"
+            )
+            print(re + "[!] Account can`t write in this chat")
+            if order.user:
+                send_message_to_user.delay(
+                    settings.TELEGRAM_MANUAL_BOT_TOKEN,
+                    order.user.telegram_id,
+                    f"Аккаунт {phone_number} не имеет права инвайтить в этот чат, перезапускаем инвайт на другом аккаунте",
+                )
+            invite(order)
+            return
         except:
             client.disconnect()
             account.is_active = False
@@ -248,6 +266,12 @@ def invite(order):
             account.save()
             traceback.print_exc()
             print(re + "[!] Unexpected Error")
+            if order.user:
+                send_message_to_user.delay(
+                    settings.TELEGRAM_MANUAL_BOT_TOKEN,
+                    order.user.telegram_id,
+                    f"Аккаунт {phone_number} был отключен по неизвестной причине, перезапускаем инвайт на другом аккаунте",
+                )
             invite(order)
             return
 
