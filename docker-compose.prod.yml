@@ -2,6 +2,7 @@ version: '2'
 
 services:
     db:
+        restart: always
         image: postgres:13.0-alpine
         volumes:
             - postgres_data:/var/lib/postgresql/data/
@@ -9,7 +10,7 @@ services:
             - ./.env.prod
 
     nginx: 
-        restart: unless-stopped
+        restart: always
         build:
             context: .
             dockerfile: ./docker/nginx/Dockerfile
@@ -26,7 +27,7 @@ services:
             - backend
     certbot:
         image: certbot/certbot
-        restart: unless-stopped
+        restart: always
         volumes:
             - ./docker/nginx/certbot/conf:/etc/letsencrypt
             - ./docker/nginx/certbot/www:/var/www/certbot
@@ -34,7 +35,7 @@ services:
           
     backend:
         container_name: backend_container
-        restart: unless-stopped
+        restart: always
         build:
             context: .
             dockerfile: ./docker/backend/Dockerfile
@@ -51,9 +52,11 @@ services:
             - db
 
     redis:
+        restart: always
         image: "redis:alpine"
 
     celery:
+        restart: always
         build:
             context: .
             dockerfile: ./docker/backend/Dockerfile
@@ -68,6 +71,7 @@ services:
         - redis
 
     telegram-bot:
+        restart: always
         build:
             context: .
             dockerfile: ./docker/backend/Dockerfile
@@ -81,6 +85,7 @@ services:
         - redis
 
     telegram-manual-bot:
+        restart: always
         build:
             context: .
             dockerfile: ./docker/backend/Dockerfile
