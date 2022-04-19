@@ -22,6 +22,7 @@ from telethon.errors.rpcerrorlist import (
 from apps.telegram_bot.constants import API_LINK_FOR_TELEGRAM_BOTS
 from apps.telegram_bot.management.loaders.telegram_manual_bot_loader import dp
 from apps.telegram_bot.services import get_jwt_token
+from apps.orders.services import get_or_create_eventloop
 
 
 class Form(StatesGroup):
@@ -98,10 +99,12 @@ async def process_phone_number(message: types.Message, state: FSMContext):
     """
     async with state.proxy() as data:
         data["phone_number"] = message.text
+        loop = get_or_create_eventloop()
         client = TelegramClient(
             "backend/server/telethon_sessions/" + data["phone_number"],
             data["api_id"],
             data["api_hash"],
+            loop=loop
         )
         try:
             await client.connect()
@@ -144,10 +147,13 @@ async def process_verification_code(message: types.Message, state: FSMContext):
     async with state.proxy() as data:
         data["verification_code"] = message.text
 
+        loop = get_or_create_eventloop()
+
         client = TelegramClient(
             "backend/server/telethon_sessions/" + data["phone_number"],
             data["api_id"],
             data["api_hash"],
+            loop=loop,
         )
         try:
             await client.connect()
