@@ -71,7 +71,6 @@ services:
         - redis
 
     telegram-bot:
-        restart: always
         build:
             context: .
             dockerfile: ./docker/backend/Dockerfile
