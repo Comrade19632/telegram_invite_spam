@@ -17,6 +17,16 @@ class InviteOrdersViewSet(ModelViewSet):
     def get_queryset(self):
         queryset = super().get_queryset()
 
+        target_chat_link = self.request.query_params.get("target_chat_link")
+        donor_chat_link = self.request.query_params.get("donor_chat_link")
+
+        if target_chat_link and donor_chat_link:
+            return queryset.filter(
+                user=self.request.user,
+                target_chat_link=target_chat_link,
+                donor_chat_link=donor_chat_link,
+            )
+
         return queryset.filter(user=self.request.user)
 
     def perform_create(self, serializer):
@@ -43,4 +53,18 @@ class InviteOrdersViewSet(ModelViewSet):
         order = self.get_object()
         order.in_progress = False
         order.save()
+        return Response(status=HTTP_200_OK)
+
+    @action(
+        methods=["POST"],
+        detail=True,
+        url_name="merge-with-similar-orders",
+        url_path="merge-with-similar-orders",
+    )
+    def megre_with_similar_orders(self, request, pk):
+        order = self.get_object()
+        for similar_order_id in request.data["similar_orders_ids"]:
+            similar_order = InviteOrder.objects.get(id=similar_order_id)
+            order.affected_users += similar_order.affected_users
+            order.save()
         return Response(status=HTTP_200_OK)
