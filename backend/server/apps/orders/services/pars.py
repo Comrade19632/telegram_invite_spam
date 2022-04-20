@@ -110,7 +110,23 @@ def pars(target_chat_link, user_account=None, loop=None):
         return
 
     all_participants = []
-    all_participants = client.get_participants(chat, aggressive=False)
+
+    try:
+        all_participants = client.get_participants(chat, aggressive=False)
+        client.disconnect()
+    except TypeError:
+        all_participants = client.get_participants(chat, aggressive=True)
+        client.disconnect()
+    except:
+        client.disconnect()
+        print("cannot pars channel")
+        account.is_active = False
+        account.is_busy = False
+        account.date_of_last_deactivate = datetime.datetime.now()
+        account.reason_of_last_deactivate = "Не получилось спарсить канал"
+        account.save()
+        pars(target_chat_link, user_account)
+        return
 
     client.disconnect()
 
