@@ -1,22 +1,15 @@
 import * as React from 'react'
-import ListItemButton from 
-'@mui/material/ListItemButton'
-import ListItemIcon from 
-'@mui/material/ListItemIcon'
-import ListItemText from 
-'@mui/material/ListItemText'
-import ListSubheader from 
-'@mui/material/ListSubheader'
-import DashboardIcon from 
-'@mui/icons-material/Dashboard'
+import ListItemButton from '@mui/material/ListItemButton'
+import ListItemIcon from '@mui/material/ListItemIcon'
+import ListItemText from '@mui/material/ListItemText'
+import ListSubheader from '@mui/material/ListSubheader'
+import DashboardIcon from '@mui/icons-material/Dashboard'
 import PeopleIcon from '@mui/icons-material/People'
 import LayersIcon from '@mui/icons-material/Layers'
-import AssignmentIcon from 
-'@mui/icons-material/Assignment'
+import AssignmentIcon from '@mui/icons-material/Assignment'
 
 export const mainListItems = (
-  <React.Fragment>
-
+  <>
     <ListItemButton>
       <ListItemIcon>
         <DashboardIcon />
@@ -37,21 +30,16 @@ export const mainListItems = (
       </ListItemIcon>
       <ListItemText primary="Парсинг" />
     </ListItemButton>
-
-  </React.Fragment>
+  </>
 )
 
 export const secondaryListItems = (
-  <React.Fragment>
-
+  <>
     <ListSubheader component="div" inset>
       Сохраненное
     </ListSubheader>
 
-    <ListItemButton 
-      onClick={()=>alert(
-        'качаю результаты за текущий месяц'
-      )}>
+    <ListItemButton onClick={() => alert('качаю результаты за текущий месяц')}>
       <ListItemIcon>
         <AssignmentIcon />
       </ListItemIcon>
@@ -59,9 +47,7 @@ export const secondaryListItems = (
     </ListItemButton>
 
     <ListItemButton
-      onClick={()=>alert(
-        'качаю результаты за предыдущий месяц'
-      )}>
+      onClick={() => alert('качаю результаты за предыдущий месяц')}>
       <ListItemIcon>
         <AssignmentIcon />
       </ListItemIcon>
@@ -74,6 +60,5 @@ export const secondaryListItems = (
       </ListItemIcon>
       <ListItemText primary="За все время" />
     </ListItemButton>
-
-  </React.Fragment>
+  </>
 )

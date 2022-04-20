@@ -1,68 +1,57 @@
-import * as React from 'react';
-import { styled, createTheme, ThemeProvider } from 
-'@mui/material/styles';
-import CssBaseline from 
-'@mui/material/CssBaseline';
-import MuiDrawer from '@mui/material/Drawer';
-import Box from '@mui/material/Box';
-import Toolbar from '@mui/material/Toolbar';
-import List from '@mui/material/List';
-import Divider from '@mui/material/Divider';
-import IconButton from '@mui/material/IconButton';
-import Container from '@mui/material/Container';
-import Grid from '@mui/material/Grid';
-import Paper from '@mui/material/Paper';
-import ChevronLeftIcon from 
-'@mui/icons-material/ChevronLeft';
+import * as React from 'react'
+import { styled, createTheme, ThemeProvider } from '@mui/material/styles'
+import CssBaseline from '@mui/material/CssBaseline'
+import MuiDrawer from '@mui/material/Drawer'
+import Box from '@mui/material/Box'
+import Toolbar from '@mui/material/Toolbar'
+import List from '@mui/material/List'
+import Divider from '@mui/material/Divider'
+import IconButton from '@mui/material/IconButton'
+import Container from '@mui/material/Container'
+import Grid from '@mui/material/Grid'
+import Paper from '@mui/material/Paper'
+import ChevronLeftIcon from '@mui/icons-material/ChevronLeft'
 
-import { mainListItems, secondaryListItems } from 
-'../../components/common/Menu';
-import Deposits from 
-'../../components/common/Balance';
-import Orders from 
-'../../components/common/Statistics';
-import Accounts from 'components/common/Accounts';
+import Accounts from 'components/common/Accounts'
+import { mainListItems, secondaryListItems } from 'components/common/Menu'
+import Deposits from 'components/common/Balance'
+import Orders from 'components/common/Statistics'
 
-const drawerWidth = 240;
+const drawerWidth = 240
 
-const Drawer = styled(MuiDrawer, { 
-shouldForwardProp: (prop) => prop !== 'open' })(
-  ({ theme, open }) => ({
-    '& .MuiDrawer-paper': {
-      position: 'relative',
-      whiteSpace: 'nowrap',
-      width: drawerWidth,
-      transition: theme.transitions.create('width', 
-{
+const Drawer = styled(MuiDrawer, {
+  shouldForwardProp: (prop) => prop !== 'open',
+})(({ theme, open }) => ({
+  '& .MuiDrawer-paper': {
+    position: 'relative',
+    whiteSpace: 'nowrap',
+    width: drawerWidth,
+    transition: theme.transitions.create('width', {
+      easing: theme.transitions.easing.sharp,
+      duration: theme.transitions.duration.enteringScreen,
+    }),
+    boxSizing: 'border-box',
+    ...(!open && {
+      overflowX: 'hidden',
+      transition: theme.transitions.create('width', {
         easing: theme.transitions.easing.sharp,
-        duration: 
-theme.transitions.duration.enteringScreen,
+        duration: theme.transitions.duration.leavingScreen,
       }),
-      boxSizing: 'border-box',
-      ...(!open && {
-        overflowX: 'hidden',
-        transition: 
-theme.transitions.create('width', {
-          easing: theme.transitions.easing.sharp,
-          duration: 
-theme.transitions.duration.leavingScreen,
-        }),
-        width: theme.spacing(7),
-        [theme.breakpoints.up('sm')]: {
-          width: theme.spacing(9),
-        },
-      }),
-    },
-  }),
-);
+      width: theme.spacing(7),
+      [theme.breakpoints.up('sm')]: {
+        width: theme.spacing(9),
+      },
+    }),
+  },
+}))
 
-const mdTheme = createTheme();
+const mdTheme = createTheme()
 
-const  DashboardContent = () => {
-  const [open, setOpen] = React.useState(true);
+const DashboardContent = () => {
+  const [open, setOpen] = React.useState(true)
   const toggleDrawer = () => {
-    setOpen(!open);
-  };
+    setOpen(!open)
+  }
 
   return (
     <ThemeProvider theme={mdTheme}>
@@ -75,8 +64,7 @@ const  DashboardContent = () => {
               alignItems: 'center',
               justifyContent: 'flex-end',
               px: [1],
-            }}
-          >
+            }}>
             <IconButton onClick={toggleDrawer}>
               <ChevronLeftIcon />
             </IconButton>
@@ -98,14 +86,12 @@ const  DashboardContent = () => {
             flexGrow: 1,
             height: '100vh',
             overflow: 'auto',
-          }}
-        >
+          }}>
           <Toolbar />
-          <Container maxWidth="lg" sx={{ mt: 4, mb: 
-4 }}>
+          <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
             <Grid container spacing={3}>
               {/* Main Content */}
-                <Accounts />
+              <Accounts />
               {/* Balance  */}
               <Grid item xs={12} md={4} lg={3}>
                 <Paper
@@ -114,15 +100,13 @@ const  DashboardContent = () => {
                     display: 'flex',
                     flexDirection: 'column',
                     height: 240,
-                  }}
-                >
+                  }}>
                   <Deposits />
                 </Paper>
               </Grid>
               {/* Statistics */}
               <Grid item xs={12}>
-                <Paper sx={{ p: 2, display: 'flex', 
-flexDirection: 'column' }}>
+                <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column' }}>
                   <Orders />
                 </Paper>
               </Grid>
@@ -131,9 +115,7 @@ flexDirection: 'column' }}>
         </Box>
       </Box>
     </ThemeProvider>
-  );
+  )
 }
 
-export default function Dashboard() {
-  return <DashboardContent />;
-}
+export default () => <DashboardContent />

@@ -17,27 +17,23 @@ const TelegramLoginButton = ({
   useEffect(() => {
     if (instance) {
       window.TelegramLoginWidget = {
-        dataOnauth: (user) => { dataOnauth(user) },
+        dataOnauth: (user) => {
+          dataOnauth(user)
+        },
       }
 
-      const script = 
-document.createElement('script')
-      script.src = 
-'https://telegram.org/js/telegram-widget.js?14'
-      script.setAttribute('data-telegram-login', 
-botName)
+      const script = document.createElement('script')
+      script.src = 'https://telegram.org/js/telegram-widget.js?14'
+      script.setAttribute('data-telegram-login', botName)
       script.setAttribute('data-size', buttonSize)
       if (cornerRadius !== undefined) {
-        script.setAttribute('data-radius', 
-cornerRadius)
+        script.setAttribute('data-radius', cornerRadius)
       }
-      script.setAttribute('data-request-access', 
-requestAccess)
+      script.setAttribute('data-request-access', requestAccess)
       script.setAttribute('data-userpic', usePic)
       script.setAttribute('data-lang', lang)
       if (dataAuthUrl !== undefined) {
-        script.setAttribute('data-auth-url', 
-dataAuthUrl)
+        script.setAttribute('data-auth-url', dataAuthUrl)
       } else {
         script.setAttribute(
           'data-onauth',
@@ -59,9 +55,7 @@ dataAuthUrl)
     usePic,
   ])
 
-  return (
-    <div ref={instance} className={className} />
-  )
+  return <div ref={instance} className={className} />
 }
 
 TelegramLoginButton.propTypes = {
@@ -69,8 +63,7 @@ TelegramLoginButton.propTypes = {
   className: PropTypes.string,
   dataOnauth: PropTypes.func,
   dataAuthUrl: PropTypes.func,
-  buttonSize: PropTypes.oneOf(['large', 'medium', 
-'small']),
+  buttonSize: PropTypes.oneOf(['large', 'medium', 'small']),
   cornerRadius: PropTypes.number,
   requestAccess: PropTypes.string,
   usePic: PropTypes.bool,
