@@ -53,7 +53,7 @@ def invite(order):
     if not input_file:
         invite(order)
 
-    if input_file == "no_accs":
+    if input_file == "fatal":
         return
 
     if order.user:

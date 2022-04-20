@@ -36,7 +36,7 @@ def pars(target_chat_link, user_account=None, loop=None):
                 user_account.telegram_id,
                 "У вас не осталось активных аккаунтов, заказ завершён",
             )
-        return "no_accs"
+        return "fatal"
     api_id = account.api_id
     api_hash = account.api_hash
     phone_number = account.phone_number
@@ -96,7 +96,7 @@ def pars(target_chat_link, user_account=None, loop=None):
                     user_account.telegram_id,
                     "Недействительная ссылка на донор группу, заказ завершён",
                 )
-            return
+            return "fatal"
     except:
         client.disconnect()
         traceback.print_exc()
