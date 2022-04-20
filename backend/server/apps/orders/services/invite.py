@@ -51,9 +51,7 @@ def invite(order):
     )
 
     if not input_file:
-        order.in_progress = False
-        order.save()
-        return
+        invite(order)
 
     if order.user:
         account = TelethonAccount.objects.filter(
