@@ -71,9 +71,7 @@ def pars(target_chat_link, user_account=None, loop=None):
         account.is_active = False
         account.is_busy = False
         account.date_of_last_deactivate = datetime.datetime.now()
-        account.reason_of_last_deactivate = (
-            "Аккаунт был забанен навсегда"
-        )
+        account.reason_of_last_deactivate = "Аккаунт был забанен навсегда"
         account.save()
         pars(target_chat_link, user_account)
         return

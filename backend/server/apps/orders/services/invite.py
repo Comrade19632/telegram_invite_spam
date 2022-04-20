@@ -11,17 +11,17 @@ import traceback
 from django.conf import settings
 
 from telethon.errors.rpcerrorlist import (
+    ChatAdminRequiredError,
     ChatWriteForbiddenError,
     FloodWaitError,
     PeerFloodError,
+    UserBannedInChannelError,
     UserChannelsTooMuchError,
+    UserDeactivatedBanError,
     UserIdInvalidError,
     UserKickedError,
     UserNotMutualContactError,
     UserPrivacyRestrictedError,
-    ChatAdminRequiredError,
-    UserBannedInChannelError,
-    UserDeactivatedBanError,
 )
 from telethon.sync import TelegramClient
 from telethon.tl.functions.channels import InviteToChannelRequest, JoinChannelRequest
@@ -278,9 +278,7 @@ def invite(order):
             account.is_active = False
             account.is_busy = False
             account.date_of_last_deactivate = datetime.datetime.now()
-            account.reason_of_last_deactivate = (
-                "Аккаунт был забанен навсегда"
-            )
+            account.reason_of_last_deactivate = "Аккаунт был забанен навсегда"
             account.save()
             print(re + "[!] Account can`t write in this chat")
             if order.user:
