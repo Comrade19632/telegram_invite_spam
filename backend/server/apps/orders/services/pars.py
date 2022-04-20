@@ -8,7 +8,7 @@ import traceback
 
 from django.conf import settings
 
-from telethon.errors.rpcerrorlist import InviteHashExpiredError
+from telethon.errors.rpcerrorlist import InviteHashExpiredError, UserDeactivatedBanError
 from telethon.sync import TelegramClient
 from telethon.tl.functions.channels import JoinChannelRequest
 from telethon.tl.functions.messages import CheckChatInviteRequest, ImportChatInviteRequest
@@ -60,10 +60,23 @@ def pars(target_chat_link, user_account=None, loop=None):
         )
         account.save()
         pars(target_chat_link, user_account)
+        return
 
     try:
         chat = client.get_entity(target_chat_link)
         client(JoinChannelRequest(chat))
+    except UserDeactivatedBanError:
+        client.disconnect()
+        print("account has been banned")
+        account.is_active = False
+        account.is_busy = False
+        account.date_of_last_deactivate = datetime.datetime.now()
+        account.reason_of_last_deactivate = (
+            "Аккаунт был забанен навсегда"
+        )
+        account.save()
+        pars(target_chat_link, user_account)
+        return
     except ValueError:
         try:
             if isinstance(
@@ -85,6 +98,18 @@ def pars(target_chat_link, user_account=None, loop=None):
                     "Недействительная ссылка на донор группу, заказ завершён",
                 )
             return
+    except:
+        client.disconnect()
+        traceback.print_exc()
+        account.is_active = False
+        account.is_busy = False
+        account.date_of_last_deactivate = datetime.datetime.now()
+        account.reason_of_last_deactivate = (
+            "Не удалось подключится, возможно аккаунт забанен"
+        )
+        account.save()
+        pars(target_chat_link, user_account)
+        return
 
     all_participants = []
     all_participants = client.get_participants(chat, aggressive=False)

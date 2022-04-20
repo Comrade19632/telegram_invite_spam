@@ -21,6 +21,7 @@ from telethon.errors.rpcerrorlist import (
     UserPrivacyRestrictedError,
     ChatAdminRequiredError,
     UserBannedInChannelError,
+    UserDeactivatedBanError,
 )
 from telethon.sync import TelegramClient
 from telethon.tl.functions.channels import InviteToChannelRequest, JoinChannelRequest
@@ -271,6 +272,24 @@ def invite(order):
                     settings.TELEGRAM_MANUAL_BOT_TOKEN,
                     order.user.telegram_id,
                     f"Аккаунт {phone_number} забанен в данном канале, перезапускаем инвайт на другом аккаунте",
+                )
+            invite(order)
+            return
+        except UserDeactivatedBanError:
+            client.disconnect()
+            account.is_active = False
+            account.is_busy = False
+            account.date_of_last_deactivate = datetime.datetime.now()
+            account.reason_of_last_deactivate = (
+                "Аккаунт был забанен навсегда"
+            )
+            account.save()
+            print(re + "[!] Account can`t write in this chat")
+            if order.user:
+                send_message_to_user.delay(
+                    settings.TELEGRAM_MANUAL_BOT_TOKEN,
+                    order.user.telegram_id,
+                    f"Аккаунт {phone_number} забанен навсегда, перезапускаем инвайт на другом аккаунте",
                 )
             invite(order)
             return
