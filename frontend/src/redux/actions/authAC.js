@@ -1,21 +1,13 @@
 import { toast } from 'react-toastify'
 import { Navigate } from 'react-router-dom'
 import axios from 'axios'
-import {
-  SET_TOKEN,
-  SET_CURRENT_USER,
-  UNSET_CURRENT_USER,
-} from './authTypes'
-import {
-  setAxiosAuthToken,
-  toastOnError,
-} from '../../utils/Utils'
+import { SET_TOKEN, SET_CURRENT_USER, UNSET_CURRENT_USER } from './authTypes'
+import { setAxiosAuthToken, toastOnError } from '../../utils/Utils'
 
 axios.defaults.baseURL = 'http://localhost/'
 
 export const setCurrentUser = (user) => (dispatch) => {
-  localStorage.setItem('user', 
-JSON.stringify(user))
+  localStorage.setItem('user', JSON.stringify(user))
   dispatch({
     type: SET_CURRENT_USER,
     payload: user,
@@ -31,11 +23,10 @@ export const setToken = (token) => {
   }
 }
 
-export const unsetCurrentUser = () => (dispatch) => 
-{
-  setAxiosAuthToken('');
-  localStorage.removeItem('token');
-  localStorage.removeItem('user');
+export const unsetCurrentUser = () => (dispatch) => {
+  setAxiosAuthToken('')
+  localStorage.removeItem('token')
+  localStorage.removeItem('user')
   dispatch({
     type: UNSET_CURRENT_USER,
   })
@@ -47,12 +38,10 @@ export const logout = () => (dispatch) => {
   return <Navigate to="/" />
 }
 
-
-export const login = (userData, redirectTo, 
-navigate) => (dispatch) => {
+export const login = (userData, redirectTo, navigate) => (dispatch) => {
   axios
-  .post("/api/token/", userData)
-  .then((response) => {
+    .post('/api/token/', userData)
+    .then((response) => {
       const { access, user } = response.data
       dispatch(setToken(access))
       dispatch(setCurrentUser(user))
@@ -61,8 +50,7 @@ navigate) => (dispatch) => {
       }
     })
     .catch((error) => {
-      alert(error)
-      dispatch(unsetCurrentUser());
+      dispatch(unsetCurrentUser())
       toastOnError(error)
     })
 }
