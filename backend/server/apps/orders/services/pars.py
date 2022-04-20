@@ -8,6 +8,7 @@ import traceback
 
 from django.conf import settings
 
+from telethon.errors.common import MultiError
 from telethon.errors.rpcerrorlist import InviteHashExpiredError, UserDeactivatedBanError
 from telethon.sync import TelegramClient
 from telethon.tl.functions.channels import JoinChannelRequest
@@ -115,8 +116,30 @@ def pars(target_chat_link, user_account=None, loop=None):
         all_participants = client.get_participants(chat, aggressive=False)
         client.disconnect()
     except TypeError:
-        all_participants = client.get_participants(chat, aggressive=True)
-        client.disconnect()
+        try:
+            all_participants = client.get_participants(chat, aggressive=True)
+            client.disconnect()
+        except MultiError:
+            client.disconnect()
+            print("cannot pars channel")
+            account.is_active = False
+            account.is_busy = False
+            account.date_of_last_deactivate = datetime.datetime.now()
+            account.reason_of_last_deactivate = "Не получилось спарсить канал"
+            account.save()
+            pars(target_chat_link, user_account)
+            return
+        except:
+            client.disconnect()
+            print("cannot pars channel")
+            account.is_active = False
+            account.is_busy = False
+            account.date_of_last_deactivate = datetime.datetime.now()
+            account.reason_of_last_deactivate = "Не получилось спарсить канал"
+            account.save()
+            pars(target_chat_link, user_account)
+            return
+
     except:
         client.disconnect()
         print("cannot pars channel")
