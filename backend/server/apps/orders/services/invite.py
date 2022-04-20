@@ -53,6 +53,9 @@ def invite(order):
     if not input_file:
         invite(order)
 
+    if input_file == "no_accs":
+        return
+
     if order.user:
         account = TelethonAccount.objects.filter(
             is_initialized=True, is_active=True, is_busy=False, owner=order.user

@@ -47,7 +47,6 @@ async def cmd_get_in_progress_orders(message: types.Message):
                 md.text("Донор группа: ", order["donor_chat_link"]),
                 sep="\n",
             ),
-            parse_mode=ParseMode.MARKDOWN,
             reply_markup=keyboard,
         )
 

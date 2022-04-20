@@ -35,7 +35,7 @@ def pars(target_chat_link, user_account=None, loop=None):
                 user_account.telegram_id,
                 "У вас не осталось активных аккаунтов, заказ завершён",
             )
-        return
+        return "no_accs"
     api_id = account.api_id
     api_hash = account.api_hash
     phone_number = account.phone_number
