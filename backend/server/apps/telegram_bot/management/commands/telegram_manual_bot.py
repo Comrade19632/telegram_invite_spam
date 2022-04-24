@@ -42,6 +42,7 @@ class Command(BaseCommand):
                 ),
                 types.BotCommand("start", "Начать работу"),
                 types.BotCommand("invite", "Нчать инвайтинг"),
+                types.BotCommand("spam", "Нчать рассылку"),
                 types.BotCommand("cancel", "Закончить работу"),
             ]
         )
