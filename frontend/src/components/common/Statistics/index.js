@@ -23,44 +23,47 @@ const rows = [
   createData(4, '15 Mar, 2019', 'telegramchik', 'LongBin', 212.79),
 ]
 
-const preventDefault = (event) => {
-  event.preventDefault()
-}
+const Statistics = () => {
 
-const Statistics = () => (
-  <>
-    <Title>Статистика</Title>
-    <Table size="small">
-      <TableHead>
-        <TableRow>
-          <TableCell>Дата парсинга</TableCell>
-          <TableCell>Аккаунт</TableCell>
-          <TableCell>Целевая Группа</TableCell>
-          <TableCell align="right">Конвкрсия</TableCell>
-        </TableRow>
-      </TableHead>
-      <TableBody>
-        {rows.map((row) => (
-          <TableRow key={row.id}>
-            <TableCell>{row.date}</TableCell>
-            <TableCell>{row.accountName}</TableCell>
-            <TableCell>{row.parsedGroup}</TableCell>
-            <TableCell 
-              align="right">
-              {`${row.parsedUsersNum} чел.`}
-            </TableCell>
+  const onClick = (event) => {
+    event.preventDefault()
+  }
+
+  return (
+    <>
+      <Title>Статистика</Title>
+      <Table size="small">
+        <TableHead>
+          <TableRow>
+            <TableCell>Дата парсинга</TableCell>
+            <TableCell>Аккаунт</TableCell>
+            <TableCell>Целевая Группа</TableCell>
+            <TableCell align="right">Конвкрсия</TableCell>
           </TableRow>
-        ))}
-      </TableBody>
-    </Table>
-    <Link 
-      color="primary" 
-      href="#" 
-      onClick={preventDefault} 
-      sx={{ mt: 3 }}>
-      Посмотреть всю историю
-    </Link>
-  </>
-)
+        </TableHead>
+        <TableBody>
+          {rows.map((row) => (
+            <TableRow key={row.id}>
+              <TableCell>{row.date}</TableCell>
+              <TableCell>{row.accountName}</TableCell>
+              <TableCell>{row.parsedGroup}</TableCell>
+              <TableCell 
+                align="right">
+                {`${row.parsedUsersNum} чел.`}
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+      <Link 
+        color="primary" 
+        href="#" 
+        onClick={onClick} 
+        sx={{ mt: 3 }}>
+        Посмотреть всю историю
+      </Link>
+    </>
+  )
+}
 
 export default Statistics

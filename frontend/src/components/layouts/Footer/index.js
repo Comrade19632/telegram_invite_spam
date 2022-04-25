@@ -24,9 +24,11 @@ const StickyFooter = () => (
             ? theme.palette.grey[200]
             : theme.palette.grey[800],
       }}>
-      <Container maxWidth="sm">
-        <Typography variant="body1">
-          My sticky footer can be found here.
+      <Container maxWidth='sm'>
+        <Typography 
+          variant='body1'
+          textAlign='center'>
+          some text
         </Typography>
         <Copyright />
       </Container>

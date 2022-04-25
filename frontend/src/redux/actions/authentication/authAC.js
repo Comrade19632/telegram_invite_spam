@@ -1,8 +1,9 @@
 import { toast } from 'react-toastify'
 import { Navigate } from 'react-router-dom'
 import axios from 'axios'
+
+import { setAxiosAuthToken, toastOnError } from 'utils/Utils'
 import { SET_TOKEN, SET_CURRENT_USER, UNSET_CURRENT_USER } from './authTypes'
-import { setAxiosAuthToken, toastOnError } from '../../utils/Utils'
 
 axios.defaults.baseURL = 'http://localhost/'
 
