@@ -4,12 +4,14 @@ import Typography from '@mui/material/Typography'
 import PropTypes from 'prop-types'
 import Title from '../Title'
 
-const preventDefault = (event) => {
-  event.preventDefault()
-}
 
 const Deposits = ({ balance }) => {
+  const onClick = (event) => {
+    event.preventDefault()
+  }
+
   const today = new Date().toLocaleDateString()
+
   return (
     <>
       <Title>Баланс</Title>
@@ -25,7 +27,7 @@ const Deposits = ({ balance }) => {
         <Link 
           color="primary" 
           href="#" 
-          onClick={preventDefault}>
+          onClick={onClick}>
           История зачислений
         </Link>
       </div>

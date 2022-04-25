@@ -2,7 +2,7 @@ import {
   SET_TOKEN,
   SET_CURRENT_USER,
   UNSET_CURRENT_USER,
-} from '../actions/authTypes'
+} from '../actions/authentication/authTypes'
 
 const initialState = {
   isAuthenticated: false,

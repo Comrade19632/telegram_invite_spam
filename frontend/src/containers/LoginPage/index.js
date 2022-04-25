@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import { useDispatch } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
 
-import { login } from 'redux/actions/authAC'
+import { login } from 'redux/actions/authentication/authAC'
 import SignIn from 'components/common/SignIn'
 
 const LoginPage = () => {

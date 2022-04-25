@@ -1,26 +1,20 @@
 import React from 'react'
 import PropTypes from 'prop-types'
 import Typography from '@mui/material/Typography'
-import MuiAppBar from '@mui/material/AppBar'
 import Toolbar from '@mui/material/Toolbar'
 import IconButton from '@mui/material/IconButton'
 import MenuIcon from '@mui/icons-material/Menu'
 import Badge from '@mui/material/Badge'
 import NotificationsIcon from '@mui/icons-material/Notifications'
-import { styled } from '@mui/material/styles'
+import TelegramIcon from '@mui/icons-material/Telegram'
 
-const AppBar = styled(MuiAppBar, {
-  shouldForwardProp: (prop) => prop !== 'open',
-})(({ theme, open }) => ({
-  zIndex: theme.zIndex.drawer + 1,
-  transition: theme.transitions.create(['width', 'margin'], {
-    easing: theme.transitions.easing.sharp,
-    duration: theme.transitions.duration.leavingScreen,
-  }),
-}))
+import AppBar from 'components/layouts/AppBar'
 
-const Header = ({ toggleDrawer, open, unreadMessages }) => (
-  <AppBar position="absolute" open={open}>
+const Header = ({ toggleDrawer, open, unreadMessages, drawerwidth}) => (
+  <AppBar 
+    position="absolute" 
+    open={open} 
+    drawerwidth={drawerwidth}>
     <Toolbar
       sx={{
         pr: '24px', // keep right padding when drawer closed
@@ -36,13 +30,14 @@ const Header = ({ toggleDrawer, open, unreadMessages }) => (
         }}>
         <MenuIcon />
       </IconButton>
+      <TelegramIcon fontSize='large'/>
       <Typography
         component="h1"
         variant="h6"
         color="inherit"
         noWrap
         sx={{ flexGrow: 1 }}>
-        Telegram spam bot
+        Tele-bot
       </Typography>
       <IconButton color="inherit">
         <Badge badgeContent={unreadMessages} color="secondary">
@@ -50,21 +45,15 @@ const Header = ({ toggleDrawer, open, unreadMessages }) => (
         </Badge>
       </IconButton>
     </Toolbar>
+    {/* <Outlet /> */}
   </AppBar>
 )
 
 Header.propTypes = {
-  toggleDrawer: PropTypes.func,
-  open: PropTypes.string,
-  unreadMessages: PropTypes.number
-}
-
-Header.defaultProps = {
-  toggleDrawer: () => {
-    alert('toggle')
-  },
-  open: 'closed',
-  unreadMessages: 3,
+  toggleDrawer: PropTypes.func.isRequired,
+  open: PropTypes.bool.isRequired,
+  unreadMessages: PropTypes.number.isRequired,
+  drawerwidth: PropTypes.number.isRequired
 }
 
 export default Header
