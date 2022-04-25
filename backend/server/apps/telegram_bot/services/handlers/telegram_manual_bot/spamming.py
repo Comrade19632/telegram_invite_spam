@@ -13,9 +13,9 @@ from apps.telegram_bot.services import get_jwt_token
 
 class Form(StatesGroup):
     spam_message = State()  # message to be sent to users
-    donor_chat_link = State()  # subscriber donor group
-    create_order = State()
-    check_for_similar_orders = State()
+    spam_donor_chat_link = State()  # subscriber donor group
+    create_spam_order = State()
+    check_for_spam_similar_orders = State()
 
 
 @dp.message_handler(Command("spam"))
@@ -37,10 +37,10 @@ async def save_spam_message(message: types.Message, state: FSMContext):
         data["spam_message"] = message.text
 
     await message.answer("Укажите ссылку на группу донор пользователей")
-    await Form.donor_chat_link.set()
+    await Form.spam_donor_chat_link.set()
 
 
-@dp.message_handler(state=Form.donor_chat_link)
+@dp.message_handler(state=Form.spam_donor_chat_link)
 async def save_donor_chat_link(message: types.Message, state: FSMContext):
     async with state.proxy() as data:
         data["donor_chat_link"] = message.text
@@ -50,10 +50,10 @@ async def save_donor_chat_link(message: types.Message, state: FSMContext):
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True, selective=True)
     markup.add("Да", "Нет")
     await message.reply("Все верно?", reply_markup=markup)
-    await Form.create_order.set()
+    await Form.create_spam_order.set()
 
 
-@dp.message_handler(state=Form.create_order)
+@dp.message_handler(state=Form.create_spam_order)
 async def create_order(message: types.Message, state: FSMContext):
     markup = types.ReplyKeyboardRemove()
     if message.text == "Нет":
@@ -123,7 +123,7 @@ async def create_order(message: types.Message, state: FSMContext):
                 "Найденны Ваши заказы с такими же исходными данными. Пропустить пользователей которых уже проспамили?",
                 reply_markup=markup,
             )
-            await Form.check_for_similar_orders.set()
+            await Form.check_for_spam_similar_orders.set()
 
         else:
             markup = types.ReplyKeyboardMarkup(resize_keyboard=True, selective=True)
@@ -132,10 +132,10 @@ async def create_order(message: types.Message, state: FSMContext):
                 "Аквитируйте заказ",
                 reply_markup=markup,
             )
-            await Form.check_for_similar_orders.set()
+            await Form.check_for_spam_similar_orders.set()
 
 
-@dp.message_handler(state=Form.check_for_similar_orders)
+@dp.message_handler(state=Form.check_for_spam_similar_orders)
 async def check_for_similar_orders(message: types.Message, state: FSMContext):
     async with state.proxy() as data:
         markup = types.ReplyKeyboardRemove()
