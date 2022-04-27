@@ -1,9 +1,5 @@
-import configparser
 import csv
 import datetime
-import os
-import sys
-import time
 import traceback
 
 from django.conf import settings
@@ -19,10 +15,10 @@ from apps.telegram_bot.tasks import send_message_to_user
 from apps.telethon_app.models import TelethonAccount
 
 
-def pars(target_chat_link, user_account=None, loop=None):
-    if user_account:
+def pars(order, loop=None):
+    if order.user:
         account = TelethonAccount.objects.filter(
-            is_initialized=True, is_active=True, is_busy=False, owner=user_account
+            is_initialized=True, is_active=True, is_busy=False, owner=order.user
         ).first()
     else:
         account = TelethonAccount.objects.filter(
@@ -30,13 +26,15 @@ def pars(target_chat_link, user_account=None, loop=None):
         ).first()
     if not account:
         print("you dont have any active accounts")
-        if user_account:
+        order.in_progress = False
+        order.save()
+        if order.user:
             send_message_to_user.delay(
                 settings.TELEGRAM_MANUAL_BOT_TOKEN,
-                user_account.telegram_id,
-                "У вас не осталось активных аккаунтов, заказ завершён",
+                order.user.telegram_id,
+                "У вас не осталось активных аккаунтов",
             )
-        return "fatal"
+        return
     api_id = account.api_id
     api_hash = account.api_hash
     phone_number = account.phone_number
@@ -60,11 +58,10 @@ def pars(target_chat_link, user_account=None, loop=None):
             "Не удалось подключится, возможно аккаунт забанен"
         )
         account.save()
-        pars(target_chat_link, user_account)
-        return
+        pars(order.target_chat_link, order.user)
 
     try:
-        chat = client.get_entity(target_chat_link)
+        chat = client.get_entity(order.target_chat_link)
         client(JoinChannelRequest(chat))
     except UserDeactivatedBanError:
         client.disconnect()
@@ -74,29 +71,30 @@ def pars(target_chat_link, user_account=None, loop=None):
         account.date_of_last_deactivate = datetime.datetime.now()
         account.reason_of_last_deactivate = "Аккаунт был забанен навсегда"
         account.save()
-        pars(target_chat_link, user_account)
-        return
+        pars(order.target_chat_link, order.user)
     except ValueError:
         try:
             if isinstance(
-                check_invite := client(CheckChatInviteRequest(target_chat_link)),
+                check_invite := client(CheckChatInviteRequest(order.target_chat_link)),
                 ChatInviteAlready,
             ):
                 chat = check_invite.chat
             else:
-                updates = client(ImportChatInviteRequest(target_chat_link))
+                updates = client(ImportChatInviteRequest(order.target_chat_link))
                 chat = updates.chats[0]
         except InviteHashExpiredError:
             print("Недействительная ссылка на донор группу")
+            order.in_progress = False
+            order.save()
             account.is_busy = False
             account.save()
-            if user_account:
+            if order.user:
                 send_message_to_user.delay(
                     settings.TELEGRAM_MANUAL_BOT_TOKEN,
-                    user_account.telegram_id,
-                    "Недействительная ссылка на донор группу, заказ завершён",
+                    order.user.telegram_id,
+                    "Недействительная ссылка на донор группу",
                 )
-            return "fatal"
+            return
     except:
         client.disconnect()
         traceback.print_exc()
@@ -107,8 +105,7 @@ def pars(target_chat_link, user_account=None, loop=None):
             "Не удалось подключится, возможно аккаунт забанен"
         )
         account.save()
-        pars(target_chat_link, user_account)
-        return
+        pars(order.target_chat_link, order.user)
 
     all_participants = []
 
@@ -127,8 +124,7 @@ def pars(target_chat_link, user_account=None, loop=None):
             account.date_of_last_deactivate = datetime.datetime.now()
             account.reason_of_last_deactivate = "Не получилось спарсить канал"
             account.save()
-            pars(target_chat_link, user_account)
-            return
+            pars(order.target_chat_link, order.user)
         except:
             client.disconnect()
             print("cannot pars channel")
@@ -137,8 +133,7 @@ def pars(target_chat_link, user_account=None, loop=None):
             account.date_of_last_deactivate = datetime.datetime.now()
             account.reason_of_last_deactivate = "Не получилось спарсить канал"
             account.save()
-            pars(target_chat_link, user_account)
-            return
+            pars(order.target_chat_link, order.user)
 
     except:
         client.disconnect()
@@ -148,8 +143,7 @@ def pars(target_chat_link, user_account=None, loop=None):
         account.date_of_last_deactivate = datetime.datetime.now()
         account.reason_of_last_deactivate = "Не получилось спарсить канал"
         account.save()
-        pars(target_chat_link, user_account)
-        return
+        pars(order.target_chat_link, order.user)
 
     client.disconnect()
 

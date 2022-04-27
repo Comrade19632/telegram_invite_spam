@@ -1,10 +1,7 @@
 #!/usr/bin/env python3
-import configparser
 import csv
 import datetime
-import os
 import random
-import sys
 import time
 import traceback
 
@@ -25,8 +22,7 @@ from telethon.errors.rpcerrorlist import (
 )
 from telethon.sync import TelegramClient
 from telethon.tl.functions.channels import InviteToChannelRequest, JoinChannelRequest
-from telethon.tl.functions.messages import GetDialogsRequest
-from telethon.tl.types import InputPeerChannel, InputPeerEmpty, InputPeerUser
+from telethon.tl.types import InputPeerUser
 
 from apps.orders.services.pars import pars
 from apps.telegram_bot.tasks import send_message_to_user
@@ -46,14 +42,29 @@ def invite(order):
 
     loop = get_or_create_eventloop()
 
-    input_file = pars(
-        target_chat_link=order.donor_chat_link, user_account=order.user, loop=loop
-    )
+    input_file = pars(order, loop=loop)
+
+    order.refresh_from_db()
+    if not order.in_progress:
+        print(re + "[+] Order has stopped")
+        if order.user:
+            send_message_to_user.delay(
+                settings.TELEGRAM_MANUAL_BOT_TOKEN,
+                order.user.telegram_id,
+                "Заказ завершён",
+            )
+        return
 
     if not input_file:
-        invite(order)
-
-    if input_file == "fatal":
+        print(re + "[+] Order has stopped unexpectedly")
+        order.in_progress = False
+        order.save()
+        if order.user:
+            send_message_to_user.delay(
+                settings.TELEGRAM_MANUAL_BOT_TOKEN,
+                order.user.telegram_id,
+                "Заказ завершён неожиданным образом",
+            )
         return
 
     if order.user:
