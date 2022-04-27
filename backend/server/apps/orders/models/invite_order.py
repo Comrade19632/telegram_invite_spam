@@ -1,13 +1,13 @@
 from django.conf import settings
 from django.contrib.postgres.fields import ArrayField
-from django.db.models import PROTECT, BooleanField, CharField, ForeignKey
+from django.db.models import PROTECT, BooleanField, CharField, ForeignKey, ManyToManyField
 
-from phonenumber_field.modelfields import PhoneNumberField
-
+from apps.telethon_app.models import TelethonAccount
 from common.models import ActiveModel, TimeStampedModel
 
 
 class InviteOrder(TimeStampedModel, ActiveModel):
+    telethon_accounts = ManyToManyField(TelethonAccount, related_name="orders")
     user = ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=PROTECT,

@@ -53,6 +53,7 @@ class InviteOrdersViewSet(ModelViewSet):
         order = self.get_object()
         order.in_progress = False
         order.save()
+        order.telethon_accounts.update(is_busy=False)
         return Response(status=HTTP_200_OK)
 
     @action(

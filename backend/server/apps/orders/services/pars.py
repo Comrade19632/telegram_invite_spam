@@ -12,34 +12,35 @@ from telethon.tl.functions.messages import CheckChatInviteRequest, ImportChatInv
 from telethon.tl.types import ChatInviteAlready
 
 from apps.telegram_bot.tasks import send_message_to_user
-from apps.telethon_app.models import TelethonAccount
+
+from .get_account import get_account
 
 
 def pars(order, loop=None):
-    if order.user:
-        account = TelethonAccount.objects.filter(
-            is_initialized=True, is_active=True, is_busy=False, owner=order.user
-        ).first()
-    else:
-        account = TelethonAccount.objects.filter(
-            is_initialized=True, is_active=True, is_busy=False
-        ).first()
+    account = get_account(order)
+
     if not account:
         print("you dont have any active accounts")
+
         order.in_progress = False
         order.save()
+        order.telethon_accounts.update(is_busy=False)
+
         if order.user:
             send_message_to_user.delay(
                 settings.TELEGRAM_MANUAL_BOT_TOKEN,
                 order.user.telegram_id,
-                "У вас не осталось активных аккаунтов",
+                "У вас не осталось активных или свободных аккаунтов",
             )
         return
+
+    order.telethon_accounts.add(account)
+    account.is_busy = True
+    account.save()
+
     api_id = account.api_id
     api_hash = account.api_hash
     phone_number = account.phone_number
-    account.is_busy = True
-    account.save()
 
     client = TelegramClient(
         "telethon_sessions/" + str(phone_number), api_id, api_hash, loop=loop
@@ -84,10 +85,14 @@ def pars(order, loop=None):
                 chat = updates.chats[0]
         except InviteHashExpiredError:
             print("Недействительная ссылка на донор группу")
+
             order.in_progress = False
             order.save()
+            order.telethon_accounts.update(is_busy=False)
+
             account.is_busy = False
             account.save()
+
             if order.user:
                 send_message_to_user.delay(
                     settings.TELEGRAM_MANUAL_BOT_TOKEN,

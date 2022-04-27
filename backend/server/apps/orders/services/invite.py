@@ -26,8 +26,8 @@ from telethon.tl.types import InputPeerUser
 
 from apps.orders.services.pars import pars
 from apps.telegram_bot.tasks import send_message_to_user
-from apps.telethon_app.models import TelethonAccount
 
+from .get_account import get_account
 from .get_or_create_eventloop import get_or_create_eventloop
 
 
@@ -57,8 +57,11 @@ def invite(order):
 
     if not input_file:
         print(re + "[+] Order has stopped unexpectedly")
+
         order.in_progress = False
         order.save()
+        order.telethon_accounts.update(is_busy=False)
+
         if order.user:
             send_message_to_user.delay(
                 settings.TELEGRAM_MANUAL_BOT_TOKEN,
@@ -67,28 +70,27 @@ def invite(order):
             )
         return
 
-    if order.user:
-        account = TelethonAccount.objects.filter(
-            is_initialized=True, is_active=True, is_busy=False, owner=order.user
-        ).first()
-    else:
-        account = TelethonAccount.objects.filter(
-            is_initialized=True, is_active=True, is_busy=False
-        ).first()
+    account = get_account(order)
+
     if not account:
         print("you dont have any active accounts")
+
         order.in_progress = False
         order.save()
+        order.telethon_accounts.update(is_busy=False)
+
         if order.user:
             send_message_to_user.delay(
                 settings.TELEGRAM_MANUAL_BOT_TOKEN,
                 order.user.telegram_id,
-                "У вас не осталось активных аккаунтов, заказ завершён",
+                "У вас не осталось активных или свободных аккаунтов, заказ завершён",
             )
         return
 
+    order.telethon_accounts.add(account)
     account.is_busy = True
     account.save()
+
     api_id = account.api_id
     api_hash = account.api_hash
     phone_number = account.phone_number
@@ -120,10 +122,14 @@ def invite(order):
         client(JoinChannelRequest(chat))
     except ValueError:
         print("Недействительная ссылка на целевую группу")
+
         account.is_busy = False
         account.save()
+
         order.in_progress = False
         order.save()
+        order.telethon_accounts.update(is_busy=False)
+
         if order.user:
             send_message_to_user.delay(
                 settings.TELEGRAM_MANUAL_BOT_TOKEN,
@@ -324,10 +330,14 @@ def invite(order):
             return
 
     client.disconnect()
+
     order.in_progress = False
     order.save()
+    order.telethon_accounts.update(is_busy=False)
+
     account.is_busy = False
     account.save()
+
     send_message_to_user.delay(
         settings.TELEGRAM_MANUAL_BOT_TOKEN,
         order.user.telegram_id,
