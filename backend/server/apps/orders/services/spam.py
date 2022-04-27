@@ -111,10 +111,10 @@ def spam(order):
             users.append(user)
     
     for user in users:
-      receiver = InputPeerUser(user['id'],user['access_hash'])
+    #   receiver = InputPeerUser(user['id'],user['access_hash'])
       try:
           print(gr+"[+] Sending Message to:", user['name'])
-          client.send_message(receiver, order.message.format(user['name']))
+          client.send_message(user["id"], order.spam_message)
           print(gr+"[+] Waiting {} seconds".format(SLEEP_TIME))
           time.sleep(SLEEP_TIME)
       except PeerFloodError:
