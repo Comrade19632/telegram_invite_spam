@@ -258,7 +258,9 @@ def pars(order, loop=None):
     client.disconnect()
 
     with open(
-        "pars_results/" + f"{account.api_id}{chat.id}.csv", "w+", encoding="UTF-8"
+        "pars_results/" + f"{account.api_id}{chat.id}{order.id}.csv",
+        "w+",
+        encoding="UTF-8",
     ) as f:
         writer = csv.writer(f, delimiter=";", lineterminator="\n")
         writer.writerow(

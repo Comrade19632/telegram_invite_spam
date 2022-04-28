@@ -121,6 +121,8 @@ def invite(order):
         chat = client.get_entity(order.target_chat_link)
         client(JoinChannelRequest(chat))
     except ValueError:
+        client.disconnect()
+
         print("Недействительная ссылка на целевую группу")
 
         account.is_busy = False
@@ -135,6 +137,43 @@ def invite(order):
                 settings.TELEGRAM_MANUAL_BOT_TOKEN,
                 order.user.telegram_id,
                 f"Недействительная ссылка на целевую группу, заказ завершён",
+            )
+        return
+    except UserDeactivatedBanError:
+        client.disconnect()
+        account.is_active = False
+        account.is_busy = False
+        account.date_of_last_deactivate = datetime.datetime.now()
+        account.reason_of_last_deactivate = "Аккаунт был забанен навсегда"
+        account.save()
+        print(re + "[!] Account can`t write in this chat")
+        if order.user:
+            send_message_to_user.delay(
+                settings.TELEGRAM_MANUAL_BOT_TOKEN,
+                order.user.telegram_id,
+                f"Аккаунт {phone_number} забанен навсегда, перезапускаем инвайт на другом аккаунте",
+            )
+        return invite(order)
+    except:
+        traceback.print_exc()
+        client.disconnect()
+        account.is_busy = False
+        account.is_active = False
+        account.date_of_last_deactivate = datetime.datetime.now()
+        account.reason_of_last_deactivate = (
+            "Произошла непредвиденная ошибка при инвайте"
+        )
+        account.save()
+
+        order.in_progress = False
+        order.save()
+        order.telethon_accounts.update(is_busy=False)
+
+        if order.user:
+            send_message_to_user.delay(
+                settings.TELEGRAM_MANUAL_BOT_TOKEN,
+                order.user.telegram_id,
+                f"Произошла непредвиденная ошибка при инвайте, заказ завершён",
             )
         return
 
