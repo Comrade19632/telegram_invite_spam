@@ -59,10 +59,10 @@ def pars(order, loop=None):
             "Не удалось подключится, возможно аккаунт забанен"
         )
         account.save()
-        pars(order.target_chat_link, order.user)
+        pars(order)
 
     try:
-        chat = client.get_entity(order.target_chat_link)
+        chat = client.get_entity(order.donor_chat_link)
         client(JoinChannelRequest(chat))
     except UserDeactivatedBanError:
         client.disconnect()
@@ -72,16 +72,16 @@ def pars(order, loop=None):
         account.date_of_last_deactivate = datetime.datetime.now()
         account.reason_of_last_deactivate = "Аккаунт был забанен навсегда"
         account.save()
-        pars(order.target_chat_link, order.user)
+        pars(order)
     except ValueError:
         try:
             if isinstance(
-                check_invite := client(CheckChatInviteRequest(order.target_chat_link)),
+                check_invite := client(CheckChatInviteRequest(order.donor_chat_link)),
                 ChatInviteAlready,
             ):
                 chat = check_invite.chat
             else:
-                updates = client(ImportChatInviteRequest(order.target_chat_link))
+                updates = client(ImportChatInviteRequest(order.donor_chat_link))
                 chat = updates.chats[0]
         except InviteHashExpiredError:
             print("Недействительная ссылка на донор группу")
@@ -110,7 +110,7 @@ def pars(order, loop=None):
             "Не удалось подключится, возможно аккаунт забанен"
         )
         account.save()
-        pars(order.target_chat_link, order.user)
+        pars(order)
 
     all_participants = []
 
@@ -129,7 +129,7 @@ def pars(order, loop=None):
             account.date_of_last_deactivate = datetime.datetime.now()
             account.reason_of_last_deactivate = "Не получилось спарсить канал"
             account.save()
-            pars(order.target_chat_link, order.user)
+            pars(order)
         except:
             client.disconnect()
             print("cannot pars channel")
@@ -138,7 +138,7 @@ def pars(order, loop=None):
             account.date_of_last_deactivate = datetime.datetime.now()
             account.reason_of_last_deactivate = "Не получилось спарсить канал"
             account.save()
-            pars(order.target_chat_link, order.user)
+            pars(order)
 
     except:
         client.disconnect()
@@ -148,7 +148,7 @@ def pars(order, loop=None):
         account.date_of_last_deactivate = datetime.datetime.now()
         account.reason_of_last_deactivate = "Не получилось спарсить канал"
         account.save()
-        pars(order.target_chat_link, order.user)
+        pars(order)
 
     client.disconnect()
 
