@@ -266,6 +266,7 @@ def invite(order):
             account.reason_of_last_deactivate = (
                 "Аккаунт был отключен, потому как не мог писать в чат донор"
             )
+            account.save()
             print(re + "[!] Account can`t write in this chat")
             if order.user:
                 send_message_to_user.delay(
