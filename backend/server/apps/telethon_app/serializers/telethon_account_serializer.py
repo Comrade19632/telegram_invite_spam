@@ -21,6 +21,7 @@ class TelethonAccountSerializer(ModelSerializer):
             "phone_number",
             "is_initialized",
             "is_active",
+            "is_busy",
             "created",
             "date_of_last_deactivate",
             "reason_of_last_deactivate",
