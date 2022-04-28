@@ -37,38 +37,7 @@ cy = "\033[1;36m"
 
 
 def invite(order):
-    order.in_progress = True
-    order.save()
-
     loop = get_or_create_eventloop()
-
-    input_file = pars(order, loop=loop)
-
-    order.refresh_from_db()
-    if not order.in_progress:
-        print(re + "[+] Order has stopped")
-        if order.user:
-            send_message_to_user.delay(
-                settings.TELEGRAM_MANUAL_BOT_TOKEN,
-                order.user.telegram_id,
-                "Заказ завершён",
-            )
-        return
-
-    if not input_file:
-        print(re + "[+] Order has stopped unexpectedly")
-
-        order.in_progress = False
-        order.save()
-        order.telethon_accounts.update(is_busy=False)
-
-        if order.user:
-            send_message_to_user.delay(
-                settings.TELEGRAM_MANUAL_BOT_TOKEN,
-                order.user.telegram_id,
-                "Заказ завершён неожиданным образом",
-            )
-        return
 
     account = get_account(order)
 
@@ -86,6 +55,22 @@ def invite(order):
                 "У вас не осталось активных или свободных аккаунтов, заказ завершён",
             )
         return
+
+    input_file = pars(order, account=account, loop=loop)
+
+    order.refresh_from_db()
+    if not order.in_progress:
+        print(re + "[+] Order has stopped")
+        if order.user:
+            send_message_to_user.delay(
+                settings.TELEGRAM_MANUAL_BOT_TOKEN,
+                order.user.telegram_id,
+                "Заказ завершён",
+            )
+        return
+
+    if not input_file:
+        return invite(order)
 
     order.telethon_accounts.add(account)
     account.is_busy = True

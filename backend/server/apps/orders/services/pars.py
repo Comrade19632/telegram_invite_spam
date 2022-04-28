@@ -20,7 +20,7 @@ from apps.telegram_bot.tasks import send_message_to_user
 from .get_account import get_account
 
 
-def pars(order, loop=None):
+def pars(order, account, loop=None):
     order.refresh_from_db()
     if not order.in_progress:
         print("[+] Order has stopped")
@@ -29,23 +29,6 @@ def pars(order, loop=None):
                 settings.TELEGRAM_MANUAL_BOT_TOKEN,
                 order.user.telegram_id,
                 "Заказ завершён",
-            )
-        return
-
-    account = get_account(order)
-
-    if not account:
-        print("you dont have any active accounts")
-
-        order.in_progress = False
-        order.save()
-        order.telethon_accounts.update(is_busy=False)
-
-        if order.user:
-            send_message_to_user.delay(
-                settings.TELEGRAM_MANUAL_BOT_TOKEN,
-                order.user.telegram_id,
-                "У вас не осталось активных или свободных аккаунтов",
             )
         return
 
@@ -97,7 +80,7 @@ def pars(order, loop=None):
                 order.user.telegram_id,
                 f"Аккаунт {phone_number} был забанен в этом канале, перезапускаем с другим аккаунтом",
             )
-        return pars(order)
+        return
     except UserDeactivatedBanError:
         client.disconnect()
         print("account has been banned")
@@ -112,7 +95,7 @@ def pars(order, loop=None):
                 order.user.telegram_id,
                 f"Аккаунт {phone_number} был забанен навсегда, перезапускаем с другим аккаунтом",
             )
-        return pars(order)
+        return
     except ValueError:
         try:
             if isinstance(
@@ -137,7 +120,7 @@ def pars(order, loop=None):
                     order.user.telegram_id,
                     f"Аккаунт {phone_number} был забанен в этом канале, перезапускаем с другим аккаунтом",
                 )
-            return pars(order)
+            return
         except InviteHashExpiredError:
             print("Недействительная ссылка на донор группу")
 
@@ -207,7 +190,7 @@ def pars(order, loop=None):
                     order.user.telegram_id,
                     f"Аккаунту {phone_number} не удалось спарсить канал, перезапускаем с другим аккаунтом",
                 )
-            return pars(order)
+            return
         except:
             traceback.print_exc()
             client.disconnect()

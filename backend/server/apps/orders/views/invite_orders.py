@@ -40,6 +40,8 @@ class InviteOrdersViewSet(ModelViewSet):
     )
     def start_invite_order(self, request, pk):
         order = self.get_object()
+        order.in_progress = True
+        order.save()
         invite.delay(order.id)
         return Response(status=HTTP_200_OK)
 
