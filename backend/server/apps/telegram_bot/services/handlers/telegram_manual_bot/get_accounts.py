@@ -51,6 +51,10 @@ async def cmd_get_accounts(message: types.Message):
                     md.bold("Да") if account["is_initialized"] else md.bold("Нет"),
                 ),
                 md.text(
+                    "Занят работой?",
+                    md.bold("Да") if account["is_busy"] else md.bold("Нет"),
+                ),
+                md.text(
                     "Активен?",
                     md.bold("Да") if account["is_active"] else md.bold("Нет"),
                 ),

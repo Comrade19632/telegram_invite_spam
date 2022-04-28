@@ -5,7 +5,11 @@ import traceback
 from django.conf import settings
 
 from telethon.errors.common import MultiError
-from telethon.errors.rpcerrorlist import InviteHashExpiredError, UserDeactivatedBanError
+from telethon.errors.rpcerrorlist import (
+    ChannelPrivateError,
+    InviteHashExpiredError,
+    UserDeactivatedBanError,
+)
 from telethon.sync import TelegramClient
 from telethon.tl.functions.channels import JoinChannelRequest
 from telethon.tl.functions.messages import CheckChatInviteRequest, ImportChatInviteRequest
@@ -17,6 +21,17 @@ from .get_account import get_account
 
 
 def pars(order, loop=None):
+    order.refresh_from_db()
+    if not order.in_progress:
+        print("[+] Order has stopped")
+        if order.user:
+            send_message_to_user.delay(
+                settings.TELEGRAM_MANUAL_BOT_TOKEN,
+                order.user.telegram_id,
+                "Заказ завершён",
+            )
+        return
+
     account = get_account(order)
 
     if not account:
@@ -50,20 +65,39 @@ def pars(order, loop=None):
         client.connect()
 
     except:
-        client.disconnect()
         traceback.print_exc()
-        account.is_active = False
-        account.is_busy = False
-        account.date_of_last_deactivate = datetime.datetime.now()
-        account.reason_of_last_deactivate = (
-            "Не удалось подключится, возможно аккаунт забанен"
-        )
-        account.save()
-        pars(order)
+        client.disconnect()
+        print("cannot pars channel")
+        order.in_progress = False
+        order.save()
+        order.telethon_accounts.update(is_busy=False)
+
+        if order.user:
+            send_message_to_user.delay(
+                settings.TELEGRAM_MANUAL_BOT_TOKEN,
+                order.user.telegram_id,
+                "Произошла непредвиденная ошибка во время парсинга",
+            )
+        return
 
     try:
         chat = client.get_entity(order.donor_chat_link)
         client(JoinChannelRequest(chat))
+    except ChannelPrivateError:
+        client.disconnect()
+        print("account has been banned in this channel")
+        account.is_active = False
+        account.is_busy = False
+        account.date_of_last_deactivate = datetime.datetime.now()
+        account.reason_of_last_deactivate = "Аккаунт был забанен в этом канале"
+        account.save()
+        if order.user:
+            send_message_to_user.delay(
+                settings.TELEGRAM_MANUAL_BOT_TOKEN,
+                order.user.telegram_id,
+                f"Аккаунт {phone_number} был забанен в этом канале, перезапускаем с другим аккаунтом",
+            )
+        return pars(order)
     except UserDeactivatedBanError:
         client.disconnect()
         print("account has been banned")
@@ -72,7 +106,13 @@ def pars(order, loop=None):
         account.date_of_last_deactivate = datetime.datetime.now()
         account.reason_of_last_deactivate = "Аккаунт был забанен навсегда"
         account.save()
-        pars(order)
+        if order.user:
+            send_message_to_user.delay(
+                settings.TELEGRAM_MANUAL_BOT_TOKEN,
+                order.user.telegram_id,
+                f"Аккаунт {phone_number} был забанен навсегда, перезапускаем с другим аккаунтом",
+            )
+        return pars(order)
     except ValueError:
         try:
             if isinstance(
@@ -83,6 +123,21 @@ def pars(order, loop=None):
             else:
                 updates = client(ImportChatInviteRequest(order.donor_chat_link))
                 chat = updates.chats[0]
+        except ChannelPrivateError:
+            client.disconnect()
+            print("account has been banned in this channel")
+            account.is_active = False
+            account.is_busy = False
+            account.date_of_last_deactivate = datetime.datetime.now()
+            account.reason_of_last_deactivate = "Аккаунт был забанен в этом канале"
+            account.save()
+            if order.user:
+                send_message_to_user.delay(
+                    settings.TELEGRAM_MANUAL_BOT_TOKEN,
+                    order.user.telegram_id,
+                    f"Аккаунт {phone_number} был забанен в этом канале, перезапускаем с другим аккаунтом",
+                )
+            return pars(order)
         except InviteHashExpiredError:
             print("Недействительная ссылка на донор группу")
 
@@ -100,27 +155,44 @@ def pars(order, loop=None):
                     "Недействительная ссылка на донор группу",
                 )
             return
+        except:
+            traceback.print_exc()
+            client.disconnect()
+            print("cannot pars channel")
+            order.in_progress = False
+            order.save()
+            order.telethon_accounts.update(is_busy=False)
+
+            if order.user:
+                send_message_to_user.delay(
+                    settings.TELEGRAM_MANUAL_BOT_TOKEN,
+                    order.user.telegram_id,
+                    "Произошла непредвиденная ошибка во время парсинга",
+                )
+            return
     except:
-        client.disconnect()
         traceback.print_exc()
-        account.is_active = False
-        account.is_busy = False
-        account.date_of_last_deactivate = datetime.datetime.now()
-        account.reason_of_last_deactivate = (
-            "Не удалось подключится, возможно аккаунт забанен"
-        )
-        account.save()
-        pars(order)
+        client.disconnect()
+        print("cannot pars channel")
+        order.in_progress = False
+        order.save()
+        order.telethon_accounts.update(is_busy=False)
+
+        if order.user:
+            send_message_to_user.delay(
+                settings.TELEGRAM_MANUAL_BOT_TOKEN,
+                order.user.telegram_id,
+                "Произошла непредвиденная ошибка во время парсинга",
+            )
+        return
 
     all_participants = []
 
     try:
         all_participants = client.get_participants(chat, aggressive=False)
-        client.disconnect()
     except TypeError:
         try:
             all_participants = client.get_participants(chat, aggressive=True)
-            client.disconnect()
         except MultiError:
             client.disconnect()
             print("cannot pars channel")
@@ -129,26 +201,59 @@ def pars(order, loop=None):
             account.date_of_last_deactivate = datetime.datetime.now()
             account.reason_of_last_deactivate = "Не получилось спарсить канал"
             account.save()
-            pars(order)
+            if order.user:
+                send_message_to_user.delay(
+                    settings.TELEGRAM_MANUAL_BOT_TOKEN,
+                    order.user.telegram_id,
+                    f"Аккаунту {phone_number} не удалось спарсить канал, перезапускаем с другим аккаунтом",
+                )
+            return pars(order)
         except:
+            traceback.print_exc()
             client.disconnect()
             print("cannot pars channel")
-            account.is_active = False
-            account.is_busy = False
-            account.date_of_last_deactivate = datetime.datetime.now()
-            account.reason_of_last_deactivate = "Не получилось спарсить канал"
-            account.save()
-            pars(order)
+            order.in_progress = False
+            order.save()
+            order.telethon_accounts.update(is_busy=False)
 
+            if order.user:
+                send_message_to_user.delay(
+                    settings.TELEGRAM_MANUAL_BOT_TOKEN,
+                    order.user.telegram_id,
+                    "Произошла непредвиденная ошибка во время парсинга",
+                )
+            return
     except:
+        traceback.print_exc()
         client.disconnect()
         print("cannot pars channel")
-        account.is_active = False
-        account.is_busy = False
-        account.date_of_last_deactivate = datetime.datetime.now()
-        account.reason_of_last_deactivate = "Не получилось спарсить канал"
-        account.save()
-        pars(order)
+        order.in_progress = False
+        order.save()
+        order.telethon_accounts.update(is_busy=False)
+
+        if order.user:
+            send_message_to_user.delay(
+                settings.TELEGRAM_MANUAL_BOT_TOKEN,
+                order.user.telegram_id,
+                "Произошла непредвиденная ошибка во время парсинга",
+            )
+        return
+
+    if not chat:
+        print("cant pars this chat")
+
+        order.in_progress = False
+        order.save()
+        order.telethon_accounts.update(is_busy=False)
+        client.disconnect()
+
+        if order.user:
+            send_message_to_user.delay(
+                settings.TELEGRAM_MANUAL_BOT_TOKEN,
+                order.user.telegram_id,
+                "Не получилось спарсить данный чат вашими аккаунтами",
+            )
+        return
 
     client.disconnect()
 
