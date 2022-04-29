@@ -25,7 +25,7 @@ re = "\033[1;31m"
 gr = "\033[1;32m"
 cy = "\033[1;36m"
 
-SLEEP_TIME = 10
+
 
 
 def spam(order):
@@ -111,19 +111,32 @@ def spam(order):
             users.append(user)
     
     for user in users:
-    #   receiver = InputPeerUser(user['id'],user['access_hash'])
-      try:
-          print(gr+"[+] Sending Message to:", user['name'])
-          client.send_message(user["id"], order.spam_message)
-          print(gr+"[+] Waiting {} seconds".format(SLEEP_TIME))
-          time.sleep(SLEEP_TIME)
-      except PeerFloodError:
-          print(re+"[!] Getting Flood Error from telegram. \n[!] Script is stopping now. \n[!] Please try again after some time.")
-          client.disconnect()
-          sys.exit()
-      except Exception as e:
-          print(re+"[!] Error:", e)
-          print(re+"[!] Trying to continue...")
-          continue
-      client.disconnect()
-      print("Done. Message sent to all users.")
+        SLEEP_TIME = random.randint(9, 24)
+        receiver = InputPeerUser(user['id'],user['access_hash'])
+        try:
+            print(gr+"[+] Sending Message to:", user['name'])
+            client.send_message(receiver, order.spam_message)
+            print(gr+"[+] Waiting {} seconds".format(SLEEP_TIME))
+            time.sleep(SLEEP_TIME)
+        except PeerFloodError:
+            client.disconnect()
+            account.is_active = False
+            account.is_busy = False
+            account.date_of_last_deactivate = datetime.datetime.now()
+            account.reason_of_last_deactivate = "Флуд, аккаунт временно заблокирован"
+            account.save()
+            print(
+                re
+                + "[!] Getting Flood Error from telegram. \n[!] Rerun function with another account"
+            )
+            if order.user:
+                send_message_to_user.delay(
+                    settings.TELEGRAM_MANUAL_BOT_TOKEN,
+                    order.user.telegram_id,
+                    f"Аккаунт {phone_number} временно заблокирован, перезапускаем рассылку на другом аккаунте",
+                )
+                spam(order)
+                return
+
+    client.disconnect()
+    print("Done. Message sent to all users.")
