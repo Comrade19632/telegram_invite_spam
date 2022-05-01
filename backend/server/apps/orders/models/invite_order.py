@@ -7,7 +7,7 @@ from common.models import ActiveModel, TimeStampedModel
 
 
 class InviteOrder(TimeStampedModel, ActiveModel):
-    telethon_accounts = ManyToManyField(TelethonAccount, related_name="orders")
+    telethon_accounts = ManyToManyField(TelethonAccount, related_name="invite_orders")
     user = ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=PROTECT,

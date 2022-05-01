@@ -40,6 +40,8 @@ class SpamOrdersViewSet(ModelViewSet):
     )
     def start_spam_order(self, request, pk):
         order = self.get_object()
+        order.in_progress = True
+        order.save()
         spam.delay(order.id)
         return Response(status=HTTP_200_OK)
 
@@ -53,6 +55,7 @@ class SpamOrdersViewSet(ModelViewSet):
         order = self.get_object()
         order.in_progress = False
         order.save()
+        order.telethon_accounts.update(is_busy=False)
         return Response(status=HTTP_200_OK)
 
     @action(
