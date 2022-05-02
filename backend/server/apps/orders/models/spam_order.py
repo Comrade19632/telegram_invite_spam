@@ -6,15 +6,15 @@ from apps.telethon_app.models import TelethonAccount
 from common.models import ActiveModel, TimeStampedModel
 
 
-class InviteOrder(TimeStampedModel, ActiveModel):
-    telethon_accounts = ManyToManyField(TelethonAccount, related_name="invite_orders")
+class SpamOrder(TimeStampedModel, ActiveModel):
+    telethon_accounts = ManyToManyField(TelethonAccount, related_name="orders_spam")
     user = ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=PROTECT,
         blank=True,
         null=True,
     )
-    target_chat_link = CharField(max_length=128, verbose_name="target chat link")
+    spam_message = CharField(max_length=1000, verbose_name="spam message")
     donor_chat_link = CharField(max_length=128, verbose_name="donor chat link")
     affected_users = ArrayField(CharField(max_length=128), default=list)
     in_progress = BooleanField(
@@ -25,5 +25,5 @@ class InviteOrder(TimeStampedModel, ActiveModel):
 
     def __str__(self):
         if not self.is_active:
-            return f"!НЕАКТИВЕН! {self.donor_chat_link} -> {self.target_chat_link}"
-        return f"{self.donor_chat_link} -> {self.target_chat_link}"
+            return f"!НЕАКТИВЕН! {self.spam_message} -> {self.donor_chat_link}"
+        return f"{self.spam_message} -> {self.donor_chat_link}"
