@@ -88,16 +88,26 @@ def invite(order):
         client.connect()
 
     except:
-        client.disconnect()
         traceback.print_exc()
+        client.disconnect()
+        account.is_busy = False
         account.is_active = False
         account.date_of_last_deactivate = datetime.datetime.now()
         account.reason_of_last_deactivate = (
-            "Не удалось подключится, возможно аккаунт забанен"
+            "Произошла непредвиденная ошибка при инвайте"
         )
-        account.is_busy = False
         account.save()
-        invite(order)
+
+        order.in_progress = False
+        order.save()
+        order.telethon_accounts.update(is_busy=False)
+
+        if order.user:
+            send_message_to_user.delay(
+                settings.TELEGRAM_MANUAL_BOT_TOKEN,
+                order.user.telegram_id,
+                f"Произошла непредвиденная ошибка при инвайте, заказ завершён",
+            )
         return
 
     print(f"Start with {phone_number} account")
@@ -222,8 +232,7 @@ def invite(order):
                     order.user.telegram_id,
                     f"Аккаунт {phone_number} временно заблокирован, перезапускаем инвайт на другом аккаунте",
                 )
-            invite(order)
-            return
+            return invite(order)
         except PeerFloodError:
             client.disconnect()
             account.is_active = False
@@ -241,8 +250,7 @@ def invite(order):
                     order.user.telegram_id,
                     f"Аккаунт {phone_number} временно заблокирован, перезапускаем инвайт на другом аккаунте",
                 )
-            invite(order)
-            return
+            return invite(order)
         except UserPrivacyRestrictedError:
             print(
                 re
@@ -280,8 +288,7 @@ def invite(order):
                     order.user.telegram_id,
                     f"Аккаунт {phone_number} не имеет права инвайтить в этот чат, перезапускаем инвайт на другом аккаунте",
                 )
-            invite(order)
-            return
+            return invite(order)
         except ChatAdminRequiredError:
             client.disconnect()
             account.is_active = False
@@ -298,8 +305,7 @@ def invite(order):
                     order.user.telegram_id,
                     f"Аккаунт {phone_number} не имеет права инвайтить в этот чат, перезапускаем инвайт на другом аккаунте",
                 )
-            invite(order)
-            return
+            return invite(order)
         except UserBannedInChannelError:
             client.disconnect()
             account.is_active = False
@@ -316,8 +322,7 @@ def invite(order):
                     order.user.telegram_id,
                     f"Аккаунт {phone_number} забанен в данном канале, перезапускаем инвайт на другом аккаунте",
                 )
-            invite(order)
-            return
+            return invite(order)
         except UserDeactivatedBanError:
             client.disconnect()
             account.is_active = False
@@ -332,26 +337,28 @@ def invite(order):
                     order.user.telegram_id,
                     f"Аккаунт {phone_number} забанен навсегда, перезапускаем инвайт на другом аккаунте",
                 )
-            invite(order)
-            return
+            return invite(order)
         except:
+            traceback.print_exc()
             client.disconnect()
-            account.is_active = False
             account.is_busy = False
+            account.is_active = False
             account.date_of_last_deactivate = datetime.datetime.now()
             account.reason_of_last_deactivate = (
-                "Аккаунт был отключен по неизвестной причине"
+                "Произошла непредвиденная ошибка при инвайте"
             )
             account.save()
-            traceback.print_exc()
-            print(re + "[!] Unexpected Error")
+
+            order.in_progress = False
+            order.save()
+            order.telethon_accounts.update(is_busy=False)
+
             if order.user:
                 send_message_to_user.delay(
                     settings.TELEGRAM_MANUAL_BOT_TOKEN,
                     order.user.telegram_id,
-                    f"Аккаунт {phone_number} был отключен по неизвестной причине, перезапускаем инвайт на другом аккаунте",
+                    f"Произошла непредвиденная ошибка при инвайте, заказ завершён",
                 )
-            invite(order)
             return
 
     client.disconnect()

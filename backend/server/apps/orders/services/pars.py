@@ -50,6 +50,14 @@ def pars(order, account, loop=None):
     except:
         traceback.print_exc()
         client.disconnect()
+        account.is_busy = False
+        account.is_active = False
+        account.date_of_last_deactivate = datetime.datetime.now()
+        account.reason_of_last_deactivate = (
+            "Произошла непредвиденная ошибка при инвайте"
+        )
+        account.save()
+
         print("cannot pars channel")
         order.in_progress = False
         order.save()
@@ -141,6 +149,13 @@ def pars(order, account, loop=None):
         except:
             traceback.print_exc()
             client.disconnect()
+            account.is_busy = False
+            account.is_active = False
+            account.date_of_last_deactivate = datetime.datetime.now()
+            account.reason_of_last_deactivate = (
+                "Произошла непредвиденная ошибка при инвайте"
+            )
+            account.save()
             print("cannot pars channel")
             order.in_progress = False
             order.save()
@@ -156,6 +171,13 @@ def pars(order, account, loop=None):
     except:
         traceback.print_exc()
         client.disconnect()
+        account.is_busy = False
+        account.is_active = False
+        account.date_of_last_deactivate = datetime.datetime.now()
+        account.reason_of_last_deactivate = (
+            "Произошла непредвиденная ошибка при инвайте"
+        )
+        account.save()
         print("cannot pars channel")
         order.in_progress = False
         order.save()
@@ -194,6 +216,13 @@ def pars(order, account, loop=None):
         except:
             traceback.print_exc()
             client.disconnect()
+            account.is_busy = False
+            account.is_active = False
+            account.date_of_last_deactivate = datetime.datetime.now()
+            account.reason_of_last_deactivate = (
+                "Произошла непредвиденная ошибка при инвайте"
+            )
+            account.save()
             print("cannot pars channel")
             order.in_progress = False
             order.save()
@@ -209,6 +238,13 @@ def pars(order, account, loop=None):
     except:
         traceback.print_exc()
         client.disconnect()
+        account.is_busy = False
+        account.is_active = False
+        account.date_of_last_deactivate = datetime.datetime.now()
+        account.reason_of_last_deactivate = (
+            "Произошла непредвиденная ошибка при инвайте"
+        )
+        account.save()
         print("cannot pars channel")
         order.in_progress = False
         order.save()
