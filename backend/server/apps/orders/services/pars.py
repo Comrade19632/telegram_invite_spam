@@ -17,10 +17,14 @@ from telethon.tl.types import ChatInviteAlready
 
 from apps.telegram_bot.tasks import send_message_to_user
 
-from .get_account import get_account
+from .get_user_with_online_delta import get_user_with_online_delta
 
 
-def pars(order, account, loop=None):
+def pars(
+    order,
+    account,
+    loop=None,
+):
     order.refresh_from_db()
     if not order.in_progress:
         print("[+] Order has stopped")
@@ -41,7 +45,10 @@ def pars(order, account, loop=None):
     phone_number = account.phone_number
 
     client = TelegramClient(
-        "telethon_sessions/" + str(phone_number), api_id, api_hash, loop=loop
+        "telethon_sessions/" + str(phone_number),
+        api_id,
+        api_hash,
+        loop=loop,
     )
 
     try:
@@ -294,6 +301,15 @@ def pars(order, account, loop=None):
             ]
         )
         for user in all_participants:
+            if order.was_online_user_delta:
+                user = get_user_with_online_delta(
+                    user=user,
+                    was_online_user_delta=order.was_online_user_delta,
+                    get_recently_online_users=order.get_recently_online_users,
+                )
+                if not user:
+                    continue
+
             if user.username:
                 username = user.username
             else:

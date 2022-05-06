@@ -21,4 +21,6 @@ class InviteOrderSerializer(ModelSerializer):
             "affected_users",
             "created",
             "in_progress",
+            "was_online_user_delta",
+            "get_recently_online_users",
         )

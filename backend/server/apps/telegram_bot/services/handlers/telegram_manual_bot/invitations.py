@@ -1,4 +1,5 @@
-from json import loads
+import datetime
+from json import dumps, loads
 
 import requests
 from aiogram import types
@@ -14,6 +15,8 @@ from apps.telegram_bot.services import get_jwt_token
 class Form(StatesGroup):
     target_chat_link = State()  # group to which subscribers will be added
     donor_chat_link = State()  # subscriber donor group
+    was_online_delta_users_settings = State()
+    get_recently_online_users_users_settings = State()
     create_order = State()
     check_for_similar_orders = State()
 
@@ -44,9 +47,45 @@ async def save_target_chat_link(message: types.Message, state: FSMContext):
 async def save_donor_chat_link(message: types.Message, state: FSMContext):
     async with state.proxy() as data:
         data["donor_chat_link"] = message.text
+    markup = types.ReplyKeyboardMarkup(resize_keyboard=True, selective=True)
+    markup.add("1 час назад", "1 день назад", "3 дня назад", "Всех пользователей")
+    await message.reply(
+        "Каких пользователей парсить из группы донора? (онлайн не больше чем)",
+        reply_markup=markup,
+    )
+    await Form.was_online_delta_users_settings.set()
+
+
+@dp.message_handler(state=Form.was_online_delta_users_settings)
+async def save_was_online_delta_users_settings(
+    message: types.Message, state: FSMContext
+):
+    async with state.proxy() as data:
+        data["was_online_user_delta"] = message.text
+    markup = types.ReplyKeyboardMarkup(resize_keyboard=True, selective=True)
+    markup.add("Да", "Нет")
+    await message.reply(
+        "Парсить пользователей которые были в сети недавно? (скрыт статус онлайна)",
+        reply_markup=markup,
+    )
+    await Form.get_recently_online_users_users_settings.set()
+
+
+@dp.message_handler(state=Form.get_recently_online_users_users_settings)
+async def save_get_recently_online_users_users_settings(
+    message: types.Message, state: FSMContext
+):
+    async with state.proxy() as data:
+        data["get_recently_online_users"] = message.text
         await message.answer("Проверьте правильность указанных данных:")
         await message.answer(f"Целевая группа: {data['target_chat_link']}")
         await message.answer(f"Группа донор: {data['donor_chat_link']}")
+        await message.answer(
+            f"Каких пользователей парсим (онлайн не больше чем): {data['was_online_user_delta']}"
+        )
+        await message.answer(
+            f"Парсим пользователей у которых скрыт онлайн: {data['get_recently_online_users']}"
+        )
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True, selective=True)
     markup.add("Да", "Нет")
     await message.reply("Все верно?", reply_markup=markup)
@@ -69,11 +108,19 @@ async def create_order(message: types.Message, state: FSMContext):
         post_data = {
             "target_chat_link": data["target_chat_link"],
             "donor_chat_link": data["donor_chat_link"],
+            "was_online_user_delta": get_was_online_delta_from_text(
+                data["was_online_user_delta"]
+            ),
+            "get_recently_online_users": True
+            if data["get_recently_online_users"] == "Да"
+            else False,
         }
         path = "orders/invite/"
         url = API_LINK_FOR_TELEGRAM_BOTS + path
 
-        response = requests.post(url, headers=request_headers, json=post_data)
+        response = requests.post(
+            url, headers=request_headers, data=dumps(post_data, default=str)
+        )
 
         if response.status_code == 201:
             await message.reply("Заказ на инвайт успешно добавлен", reply_markup=markup)
@@ -196,3 +243,16 @@ async def check_for_similar_orders(message: types.Message, state: FSMContext):
             )
             await state.finish()
             return
+
+
+def get_was_online_delta_from_text(text):
+    if text == "1 час назад":
+        return datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(
+            hours=1
+        )
+    elif text == "1 день назад":
+        return datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(days=1)
+    elif text == "3 дня назад":
+        return datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(days=3)
+    else:
+        return
