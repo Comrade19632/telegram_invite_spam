@@ -117,7 +117,8 @@ async def create_order(message: types.Message, state: FSMContext):
                 data["similar_orders_ids"].append(order["id"])
 
         if data["similar_orders_ids"]:
-            markup = types.ReplyKeyboardMarkup(resize_keyboard=True, selective=True)
+            markup = types.ReplyKeyboardMarkup(
+                resize_keyboard=True, selective=True)
             markup.add("Да", "Нет")
             await message.reply(
                 "Найдены ваши заказы с одинаковыми целевыми и группами донорами, скопировать из них уже приглашённых пользователей?",
@@ -126,7 +127,8 @@ async def create_order(message: types.Message, state: FSMContext):
             await Form.check_for_similar_orders.set()
 
         else:
-            markup = types.ReplyKeyboardMarkup(resize_keyboard=True, selective=True)
+            markup = types.ReplyKeyboardMarkup(
+                resize_keyboard=True, selective=True)
             markup.add("Активировать заказ")
             await message.reply(
                 "Аквитируйте заказ",
@@ -151,7 +153,8 @@ async def check_for_similar_orders(message: types.Message, state: FSMContext):
             path = f"orders/invite/{data['order_id']}/merge-with-similar-orders/"
             url = API_LINK_FOR_TELEGRAM_BOTS + path
 
-            response = requests.post(url, headers=request_headers, json=post_data)
+            response = requests.post(
+                url, headers=request_headers, json=post_data)
 
             if not response.status_code == 200:
                 await message.reply(
