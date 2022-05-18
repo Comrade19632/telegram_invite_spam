@@ -129,6 +129,7 @@ def pars(
             account.is_busy = False
             account.date_of_last_deactivate = datetime.datetime.now()
             account.reason_of_last_deactivate = "Аккаунт был забанен навсегда"
+            account.is_permanent_banned = True
             account.save()
             if order.user:
                 send_message_to_user.delay(
