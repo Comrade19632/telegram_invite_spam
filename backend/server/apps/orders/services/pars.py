@@ -121,6 +121,21 @@ def pars(
             else:
                 updates = client(ImportChatInviteRequest(order.donor_chat_link))
                 chat = updates.chats[0]
+        except UserDeactivatedBanError:
+            client.disconnect()
+            print("account has been banned")
+            account.is_active = False
+            account.is_busy = False
+            account.date_of_last_deactivate = datetime.datetime.now()
+            account.reason_of_last_deactivate = "Аккаунт был забанен навсегда"
+            account.save()
+            if order.user:
+                send_message_to_user.delay(
+                    settings.TELEGRAM_MANUAL_BOT_TOKEN,
+                    order.user.telegram_id,
+                    f"Аккаунт {phone_number} был забанен навсегда, перезапускаем с другим аккаунтом",
+                )
+            return
         except ChannelPrivateError:
             client.disconnect()
             print("account has been banned in this channel")
