@@ -140,6 +140,7 @@ def invite(order):
         account.is_busy = False
         account.date_of_last_deactivate = datetime.datetime.now()
         account.reason_of_last_deactivate = "Аккаунт был забанен навсегда"
+        account.is_permanent_banned = True
         account.save()
         print(re + "[!] Account can`t write in this chat")
         if order.user:
@@ -329,6 +330,7 @@ def invite(order):
             account.is_busy = False
             account.date_of_last_deactivate = datetime.datetime.now()
             account.reason_of_last_deactivate = "Аккаунт был забанен навсегда"
+            account.is_permanent_banned = True
             account.save()
             print(re + "[!] Account can`t write in this chat")
             if order.user:

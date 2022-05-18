@@ -37,10 +37,17 @@ async def cmd_get_accounts(message: types.Message):
 
     for account in content:
         keyboard = types.InlineKeyboardMarkup()
-        button = types.InlineKeyboardButton(
-            text="Активировать", callback_data=cb.new(id=account["id"])
+        activate_button = types.InlineKeyboardButton(
+            text="Активировать",
+            callback_data=cb.new(action="activate", id=account["id"]),
         )
-        keyboard.add(button)
+        if not account["is_active"]:
+            keyboard.add(activate_button)
+        delete_button = types.InlineKeyboardButton(
+            text="Удалить", callback_data=cb.new(action="delete", id=account["id"])
+        )
+        if account["is_permanent_banned"]:
+            keyboard.add(delete_button)
         await message.reply(
             md.text(
                 md.text("Api id: ", md.bold(account["api_id"])),
@@ -69,26 +76,44 @@ async def cmd_get_accounts(message: types.Message):
                 sep="\n",
             ),
             parse_mode=ParseMode.MARKDOWN,
-            reply_markup=keyboard if not account["is_active"] else None,
+            reply_markup=keyboard,
         )
 
 
-cb = CallbackData("account_activate", "id")
+cb = CallbackData("post", "action", "id")
 
 
 @dp.callback_query_handler(cb.filter())
 async def callbacks(call: types.CallbackQuery, callback_data: dict):
-    id = callback_data["id"]
-    token = get_jwt_token(call.message.chat.id)
-    request_headers = {
-        "Authorization": f"Bearer {token}",
-        "Content-Type": "application/json",
-    }
-    path = f"telethon/accounts/{id}/activate/"
-    url = API_LINK_FOR_TELEGRAM_BOTS + path
-    response = requests.get(url, headers=request_headers)
+    if callback_data["action"] == "activate":
+        id = callback_data["id"]
+        token = get_jwt_token(call.message.chat.id)
+        request_headers = {
+            "Authorization": f"Bearer {token}",
+            "Content-Type": "application/json",
+        }
+        path = f"telethon/accounts/{id}/activate/"
+        url = API_LINK_FOR_TELEGRAM_BOTS + path
+        response = requests.get(url, headers=request_headers)
 
-    if not response.status_code == 200:
-        await call.answer(text="Произошла ошибка, попробуйте позже")
+        if not response.status_code == 200:
+            await call.answer(text="Произошла ошибка, попробуйте позже")
+            return
+        await call.answer(text="Аккаунт успешно активирован, обновите список")
+    elif callback_data["action"] == "delete":
+        id = callback_data["id"]
+        token = get_jwt_token(call.message.chat.id)
+        request_headers = {
+            "Authorization": f"Bearer {token}",
+            "Content-Type": "application/json",
+        }
+        path = f"telethon/accounts/{id}/"
+        url = API_LINK_FOR_TELEGRAM_BOTS + path
+        response = requests.delete(url, headers=request_headers)
+
+        if not response.status_code == 204:
+            await call.answer(text="Произошла ошибка, попробуйте позже")
+            return
+        await call.answer(text="Аккаунт успешно удален, обновите список")
+    else:
         return
-    await call.answer(text="Аккаунт успешно активирован, обновите список")
