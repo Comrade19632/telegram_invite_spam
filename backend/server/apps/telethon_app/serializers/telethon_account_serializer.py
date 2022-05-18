@@ -25,4 +25,5 @@ class TelethonAccountSerializer(ModelSerializer):
             "created",
             "date_of_last_deactivate",
             "reason_of_last_deactivate",
+            "is_permanent_banned",
         )
